@@ -154,6 +154,8 @@ function VC:TradeSkillShowProcessorFunc(input)
             VC:Print("Salt Shaker OFF cooldown!");
           else
             VCPlayerInfo['SaltCD'] = GetServerTime() + duration;
+            VC:Print("Registered new Salt Shaker cooldown.");
+            VC:Print("Mooncloth will be off cooldown at "..date("%x %X", VCPlayerInfo['SaltCD']))
           end
         end
       elseif (name == "Mooncloth") then
@@ -190,6 +192,8 @@ function VC:TradeSkillShowProcessorFunc(input)
           VC:Print("Transmute is OFF cooldown!");
         else
           VCPlayerInfo['TransCD'] = GetServerTime() + duration;
+          VC:Print("Registered new Transmute cooldown.");
+          VC:Print("Mooncloth will be off cooldown at "..date("%x %X", VCPlayerInfo['TransCD']))
         end
 
       end
