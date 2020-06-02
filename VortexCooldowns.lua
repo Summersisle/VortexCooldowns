@@ -41,8 +41,22 @@ function VC:OnEnable()
     -- Called when the addon is enabled
     local newCharacter = true;
     local FullName, Realm = UnitFullName("player");
-    VC:Print(UnitFullName("player"))
+    --VC:Print(UnitFullName("player"))
     for k, charInfo in pairs(self.db.global.VCCharacterInfo) do               --DB for all the characters saved
+
+      --Check if any cooldowns have completed since last log on
+      if(charInfo['SaltCD'] < GetServerTime() and charInfo['SaltCD'] ~= -1) then
+        VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Salt Shaker is OFF cooldown");
+        charInfo['SaltCD'] = -1;
+      elseif (charInfo['MoonCD'] < GetServerTime() and charInfo['MoonCD'] ~= -1) then
+        VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Mooncloth is OFF cooldown");
+        charInfo['MoonCD'] = -1;
+      elseif (charInfo['TransCD'] < GetServerTime() and charInfo['TransCD'] ~= -1) then
+        VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Transmute is OFF cooldown");
+        charInfo['TransCD'] = -1;
+      end
+
+      --Load the cooldowns for the currently logged in player
       if (charInfo['Realm'] == Realm and charInfo['Name'] == FullName) then
         VCPlayerInfo['Realm'] = charInfo['Realm']
         VCPlayerInfo['Name'] = charInfo['Name']
@@ -56,7 +70,7 @@ function VC:OnEnable()
         break
       end
     end
-    VC:Print(newCharacter)
+    --VC:Print(newCharacter)
     if (newCharacter == true) then --Didn't find a saved character so this must be a new character
       VCPlayerInfo['Name'], VCPlayerInfo['Realm'] = UnitFullName("player");
       VC:Print("Registered new character "..VCPlayerInfo['Realm'].."-"..VCPlayerInfo['Name']);
@@ -105,22 +119,44 @@ function VC:CooldownsSlashProcessorFunc(input)
     --VC:Print(charInfo['LW']);
     --VC:Print(charInfo['Alch']);
     --VC:Print(charInfo['Tailor']);
+
+
     if (realm ~= charInfo['Realm']) then
       if(charInfo['LW'] == true) then
-        VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Salt Shaker will be off cooldown at "..date("%x %X", charInfo['SaltCD']))
+        if(charInfo['SaltCD'] == -1) then
+          VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Salt Shaker is OFF cooldown!");
+        else
+          VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Salt Shaker will be off cooldown at "..date("%x %X", charInfo['SaltCD']))
+        end
       end
       if(charInfo['Alch'] == true) then
-        VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Transmute will be off cooldown at "..date("%x %X", charInfo['TransCD']))
+        if(charInfo['TransCD'] == -1) then
+          VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Transmute is OFF cooldown!");
+        else
+          VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Transmute will be off cooldown at "..date("%x %X", charInfo['TransCD']))
+        end
       end
       if(charInfo['Tailor'] == true) then
-        VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Mooncloth will be off cooldown at "..date("%x %X", charInfo['MoonCD']))
+        if(charInfo['MoonCD'] == -1) then
+          VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Mooncloth is OFF cooldown!");
+        else
+          VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Mooncloth will be off cooldown at "..date("%x %X", charInfo['MoonCD']))
+        end
       end
     else
       if(charInfo['LW'] == true) then
-        VC:Print(charInfo['Name'].." Salt Shaker will be off cooldown at "..date("%x %X", charInfo['SaltCD']))
+        if(charInfo['SaltCD'] == -1) then
+          VC:Print(charInfo['Name'].." Salt Shaker is OFF cooldown!");
+        else
+          VC:Print(charInfo['Name'].." Salt Shaker will be off cooldown at "..date("%x %X", charInfo['SaltCD']))
+        end
       end
       if(charInfo['Alch'] == true) then
-        VC:Print(charInfo['Name'].." Transmute will be off cooldown at "..date("%x %X", charInfo['TransCD']))
+        if(charInfo['TransCD'] == -1) then
+          VC:Print(charInfo['Name'].." Transmute is OFF cooldown!");
+        else
+          VC:Print(charInfo['Name'].." Transmute will be off cooldown at "..date("%x %X", charInfo['TransCD']))
+        end
       end
       if(charInfo['Tailor'] == true) then
         if(charInfo['MoonCD'] == -1) then
