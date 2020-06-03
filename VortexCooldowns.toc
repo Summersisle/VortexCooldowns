@@ -2,7 +2,7 @@
 ## Notes: Cooldown timers and warnings.
 ## Title: Vortex Cooldowns
 ## Author: Summersisles-Blaumeux
-## Version: 0.04-Alpha
+## Version: 0.05-Alpha
 ## SavedVariables: VCdatabase
 
 embeds.xml
