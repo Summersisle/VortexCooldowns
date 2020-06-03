@@ -229,7 +229,7 @@ function VC:TradeSkillShowProcessorFunc(input)
         else
           VCPlayerInfo['TransCD'] = GetServerTime() + duration;
           VC:Print("Registered new Transmute cooldown.");
-          VC:Print("Mooncloth will be off cooldown at "..date("%x %X", VCPlayerInfo['TransCD']))
+          VC:Print("Transmute will be off cooldown at "..date("%x %X", VCPlayerInfo['TransCD']))
         end
 
       end
