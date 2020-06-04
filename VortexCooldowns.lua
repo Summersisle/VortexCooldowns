@@ -177,9 +177,10 @@ function VC:TradeSkillShowProcessorFunc(input)
       if (name == "Cured Rugged Hide") then
         if(VCPlayerInfo['LW'] == false) then --Congrats on learning Leatherworking and getting Cured Rugged Hide
           VCPlayerInfo['LW'] = true
+          return;
         end
         if(VCPlayerInfo['SaltCD'] ~= -1) then
-          return
+          return;
         end
         -- Salt Shaker Item ID 15846
         local count = GetItemCount(15846,true);
@@ -188,19 +189,22 @@ function VC:TradeSkillShowProcessorFunc(input)
           if(duration == 0) then
             VCPlayerInfo['SaltCD'] = -1;
             VC:Print("Salt Shaker OFF cooldown!");
+            return;
           else
             VCPlayerInfo['SaltCD'] = GetServerTime() + duration;
             VC:Print("Registered new Salt Shaker cooldown.");
             VC:Print("Salt Shaker will be off cooldown at "..date("%x %X", VCPlayerInfo['SaltCD']));
             VC:VCSaveDB();
+            return;
           end
         end
       elseif (name == "Mooncloth") then
         if(VCPlayerInfo['Tailor'] == false) then --Congrats on learning Tailoring and getting your Mooncloth transmute
           VCPlayerInfo['Tailor'] = true
+          return;
         end
         if(VCPlayerInfo['MoonCD'] ~= -1) then -- If there is already a duration then we are done
-          return
+          return;
         end
 
         local duration =  GetTradeSkillCooldown(i); --returns nil if not on cooldown
@@ -208,31 +212,36 @@ function VC:TradeSkillShowProcessorFunc(input)
         if(duration == nil) then
           VCPlayerInfo['MoonCD'] = -1;
           VC:Print("Mooncloth is OFF cooldown!");
+          return;
         else
           VCPlayerInfo['MoonCD'] = GetServerTime() + duration;
           VC:Print("Registered new Mooncloth cooldown.");
           VC:Print("Mooncloth will be off cooldown at "..date("%x %X", VCPlayerInfo['MoonCD']));
           VC:VCSaveDB();
+          return;
         end
 
 
       elseif (string.find(name,"Transmute")) then
         if (VCPlayerInfo['Alch'] == false) then --Congrats on learning Alchemy and getting your first transmute
               VCPlayerInfo['Alch'] = true
+              return;
         end
         if (VCPlayerInfo['TransCD'] ~= -1) then --If there is already a duration then we are done
-          return
+          return;
         end
         local duration =  GetTradeSkillCooldown(i);
         --Check if off cooldown
         if(duration == nil) then
           VCPlayerInfo['TransCD'] = -1;
           VC:Print("Transmute is OFF cooldown!");
+          return;
         else
           VCPlayerInfo['TransCD'] = GetServerTime() + duration;
           VC:Print("Registered new Transmute cooldown.");
           VC:Print("Transmute will be off cooldown at "..date("%x %X", VCPlayerInfo['TransCD']));
           VC:VCSaveDB();
+          return;
         end
 
       end
