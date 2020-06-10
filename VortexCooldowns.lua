@@ -78,7 +78,6 @@ function VC:OnEnable()
       table.insert(self.db.global.VCCharacterInfo,VCPlayerInfo);
     end
 
-
     VC:Print("Vortex Cooldowns Enabled");
 end
 
@@ -87,15 +86,16 @@ function VC:VCSaveDB()
 
   for k, charInfo in pairs(self.db.global.VCCharacterInfo) do               --DB for all the characters saved
     if (charInfo['Realm'] == Realm and charInfo['Name'] == FullName) then
-         self.db.global.VCCharacterInfo[k]['LW'] = VCPlayerInfo['LW'];
-         self.db.global.VCCharacterInfo[k]['Tailor'] = VCPlayerInfo['Tailor'];
-         self.db.global.VCCharacterInfo[k]['Alch'] = VCPlayerInfo['Alch'];
-         self.db.global.VCCharacterInfo[k]['SaltCD'] = VCPlayerInfo['SaltCD'];
-         self.db.global.VCCharacterInfo[k]['MoonCD'] = VCPlayerInfo['MoonCD'];
-         self.db.global.VCCharacterInfo[k]['TransCD'] = VCPlayerInfo['TransCD'];
-         break
-      end
+      self.db.global.VCCharacterInfo[k]['LW'] = VCPlayerInfo['LW'];
+      self.db.global.VCCharacterInfo[k]['Tailor'] = VCPlayerInfo['Tailor'];
+      self.db.global.VCCharacterInfo[k]['Alch'] = VCPlayerInfo['Alch'];
+      self.db.global.VCCharacterInfo[k]['SaltCD'] = VCPlayerInfo['SaltCD'];
+      self.db.global.VCCharacterInfo[k]['MoonCD'] = VCPlayerInfo['MoonCD'];
+      self.db.global.VCCharacterInfo[k]['TransCD'] = VCPlayerInfo['TransCD'];
+      break
     end
+  end
+
 end
 
 
@@ -110,6 +110,7 @@ function VC:CooldownsSlashProcessorFunc(input)
 
   VC:VCSaveDB() -- Save the current character into the DB
 
+  VC:CheckExpiredCooldown(false);
 
   VC:Print("Current Tradeskills that have a cooldown!");
   local fullname, realm = UnitFullName("player");
@@ -119,50 +120,62 @@ function VC:CooldownsSlashProcessorFunc(input)
     --VC:Print(charInfo['LW']);
     --VC:Print(charInfo['Alch']);
     --VC:Print(charInfo['Tailor']);
-
-
     if (realm ~= charInfo['Realm']) then
       if(charInfo['LW'] == true) then
         if(charInfo['SaltCD'] == -1) then
-          VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Salt Shaker is OFF cooldown!");
+          --VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Salt Shaker is OFF cooldown!");
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],false,"Salt Shaker",nil);
         else
-          VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Salt Shaker will be off cooldown at "..date("%x %X", charInfo['SaltCD']))
+          --VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Salt Shaker will be off cooldown at "..date("%x %X", charInfo['SaltCD']))
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],true,"Salt Shaker",charInfo['SaltCD']);
         end
       end
       if(charInfo['Alch'] == true) then
         if(charInfo['TransCD'] == -1) then
-          VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Transmute is OFF cooldown!");
+          --VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Salt Shaker is OFF cooldown!");
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],false,"Transmute",nil);
         else
-          VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Transmute will be off cooldown at "..date("%x %X", charInfo['TransCD']))
+          --VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Transmute will be off cooldown at "..date("%x %X", charInfo['TransCD']))
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],true,"Transmute",charInfo['TransCD']);
         end
+
       end
       if(charInfo['Tailor'] == true) then
         if(charInfo['MoonCD'] == -1) then
-          VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Mooncloth is OFF cooldown!");
+          --VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Salt Shaker is OFF cooldown!");
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],false,"Mooncloth",nil);
         else
-          VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Mooncloth will be off cooldown at "..date("%x %X", charInfo['MoonCD']))
+          --VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Mooncloth will be off cooldown at "..date("%x %X", charInfo['MoonCD']))
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],true,"Mooncloth",charInfo['MoonCD']);
         end
+
       end
     else
       if(charInfo['LW'] == true) then
         if(charInfo['SaltCD'] == -1) then
-          VC:Print(charInfo['Name'].." Salt Shaker is OFF cooldown!");
+          --VC:Print(charInfo['Name'].." Salt Shaker is OFF cooldown!");
+          VC:PrintCooldownMessage(nil,charInfo['Name'],false,"Salt Shaker",nil);
         else
-          VC:Print(charInfo['Name'].." Salt Shaker will be off cooldown at "..date("%x %X", charInfo['SaltCD']))
+          --VC:Print(charInfo['Name'].." Salt Shaker will be off cooldown at "..date("%x %X", charInfo['SaltCD']))
+          VC:PrintCooldownMessage(nil,charInfo['Name'],true,"Salt Shaker",charInfo['SaltCD']);
         end
       end
       if(charInfo['Alch'] == true) then
         if(charInfo['TransCD'] == -1) then
-          VC:Print(charInfo['Name'].." Transmute is OFF cooldown!");
+          --VC:Print(charInfo['Name'].." Transmute is OFF cooldown!");
+          VC:PrintCooldownMessage(nil,charInfo['Name'],false,"Transmute",nil);
         else
-          VC:Print(charInfo['Name'].." Transmute will be off cooldown at "..date("%x %X", charInfo['TransCD']))
+        --  VC:Print(charInfo['Name'].." Transmute will be off cooldown at "..date("%x %X", charInfo['TransCD']))
+        VC:PrintCooldownMessage(nil,charInfo['Name'],true,"Transmute",charInfo['TransCD']);
         end
       end
       if(charInfo['Tailor'] == true) then
         if(charInfo['MoonCD'] == -1) then
-          VC:Print(charInfo['Name'].." Mooncloth is OFF cooldown!");
+          --VC:Print(charInfo['Name'].." Mooncloth is OFF cooldown!");
+          VC:PrintCooldownMessage(nil,charInfo['Name'],false,"Mooncloth",nil);
         else
-          VC:Print(charInfo['Name'].." Mooncloth will be off cooldown at "..date("%x %X", charInfo['MoonCD']))
+          --VC:Print(charInfo['Name'].." Mooncloth will be off cooldown at "..date("%x %X", charInfo['MoonCD']))
+          VC:PrintCooldownMessage(nil,charInfo['Name'],true,"Mooncloth",charInfo['MoonCD']);
         end
       end
     end
@@ -270,3 +283,51 @@ end
         --VC:Print("Days:"..days);
         --VC:Print("Hours:"..hours);
         --VC:Print("Minutes:"..minutes);
+
+
+function VC:PrintCooldownMessage(realm, name, onCD, type, time)
+  if(onCD == true) then
+    if(realm == nil) then
+      VC:Print(name.." "..type.." will be off cooldown at "..date("%x %X",time));
+    else
+      VC:Print(realm.."-"..name.." "..type.." will be off cooldown at "..date("%x %X",time));
+    end
+  else
+    if(realm == nil) then
+      VC:Print(name.." "..type.." is OFF cooldown");
+    else
+      VC:Print(realm.."-"..name.." "..type.." is OFF cooldown");
+    end
+  end
+end
+
+--Checks the DB for all cooldowns that are expired
+function VC:CheckExpiredCooldown(print)
+  local currTime = GetServerTime();
+  for k, charInfo in pairs(self.db.global.VCCharacterInfo) do
+    if(self.db.global.VCCharacterInfo[k]['LW'] == true) then
+      if (currTime > self.db.global.VCCharacterInfo[k]['SaltCD']) then
+        self.db.global.VCCharacterInfo[k]['SaltCD'] = -1;
+        if(print) then
+          VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, "Salt Shaker", nil);
+        end
+      end
+    end
+    if(self.db.global.VCCharacterInfo[k]['Tailor'] == true ) then
+      if (currTime > self.db.global.VCCharacterInfo[k]['MoonCD']) then
+        self.db.global.VCCharacterInfo[k]['MoonCD'] = -1;
+        if(print) then
+          VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, "Mooncloth", nil);
+        end
+      end
+    end
+    if(self.db.global.VCCharacterInfo[k]['Alch'] == true) then
+      if (currTime > self.db.global.VCCharacterInfo[k]['TransCD']) then
+        self.db.global.VCCharacterInfo[k]['TransCD'] = -1;
+        if(print) then
+          VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, "Transmute", nil);
+        end
+      end
+    end
+  end
+end
