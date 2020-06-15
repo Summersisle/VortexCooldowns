@@ -80,6 +80,7 @@ function VC:OnEnable()
     --VC:Print(newCharacter)
     if (newCharacter == true) then --Didn't find a saved character so this must be a new character
       VCPlayerInfo['Name'], VCPlayerInfo['Realm'] = UnitFullName("player");
+      __, VCPlayerInfo['Class'],__ = UnitClass("player");
       VC:Print("Registered new character "..VCPlayerInfo['Realm'].."-"..VCPlayerInfo['Name']);
       --VC:Print(VCPlayerInfo);
       table.insert(self.db.global.VCCharacterInfo,VCPlayerInfo);
@@ -103,7 +104,8 @@ function VC:VCSaveDB()
       self.db.global.VCCharacterInfo[k]['SaltCD'] = VCPlayerInfo['SaltCD'];
       self.db.global.VCCharacterInfo[k]['MoonCD'] = VCPlayerInfo['MoonCD'];
       self.db.global.VCCharacterInfo[k]['TransCD'] = VCPlayerInfo['TransCD'];
-      if(self.db.global.VCCharacterInfo[k]['Class'] == nil) then
+      if(VCPlayerInfo['Class'] == nil) then
+        __, VCPlayerInfo['Class'],__ = UnitClass("player");
         self.db.global.VCCharacterInfo[k]['Class'] = VCPlayerInfo['Class'];
       end
       break
