@@ -4,12 +4,13 @@
 --
 --
 
-VC = LibStub("AceAddon-3.0"):NewAddon("VortexCooldowns", "AceConsole-3.0", "AceEvent-3.0")
+VC = LibStub("AceAddon-3.0"):NewAddon("VortexCooldowns", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0");
 
 --Variable to keep track of the current logged in char
 VCPlayerInfo = {}
 VCPlayerInfo['Realm'] = nil
 VCPlayerInfo['Name'] = nil
+VCPlayerInfo['Class'] = nil
 VCPlayerInfo['LW'] = false
 VCPlayerInfo['Tailor'] = false
 VCPlayerInfo['Alch'] = false
@@ -29,10 +30,15 @@ local defaults = {
   }
 }
 
+MoonClothTimer = nil;
+SaltShakerTimer = nil;
+TransmuteTimer = nil;
+
 function VC:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("VCdatabase", defaults)
   VC:RegisterChatCommand("cooldowns", "CooldownsSlashProcessorFunc")
   --VC:RegisterChatCommand("VCSave", "VCSaveProcFunc")
+  VC:RegisterChatCommand("VCTest", "VCTest");
   VC:RegisterEvent("TRADE_SKILL_UPDATE","TradeSkillShowProcessorFunc")
   VC:Print("Vortex Cooldowns Initialized")
 end
@@ -60,6 +66,7 @@ function VC:OnEnable()
       if (charInfo['Realm'] == Realm and charInfo['Name'] == FullName) then
         VCPlayerInfo['Realm'] = charInfo['Realm']
         VCPlayerInfo['Name'] = charInfo['Name']
+        VCPlayerInfo['Class'] = charInfo['Class']
         VCPlayerInfo['LW'] = charInfo['LW']
         VCPlayerInfo['Tailor'] = charInfo['Tailor']
         VCPlayerInfo['Alch'] = charInfo['Alch']
@@ -78,6 +85,10 @@ function VC:OnEnable()
       table.insert(self.db.global.VCCharacterInfo,VCPlayerInfo);
     end
 
+    MoonClothTimer = self:ScheduleTimer("TimerCooldown", 5);
+    SaltShakerTimer =  self:ScheduleTimer("TimerCooldown", 5);
+    TransmuteTimer =  self:ScheduleTimer("TimerCooldown", 5);
+
     VC:Print("Vortex Cooldowns Enabled");
 end
 
@@ -92,6 +103,9 @@ function VC:VCSaveDB()
       self.db.global.VCCharacterInfo[k]['SaltCD'] = VCPlayerInfo['SaltCD'];
       self.db.global.VCCharacterInfo[k]['MoonCD'] = VCPlayerInfo['MoonCD'];
       self.db.global.VCCharacterInfo[k]['TransCD'] = VCPlayerInfo['TransCD'];
+      if(self.db.global.VCCharacterInfo[k]['Class'] == nil) then
+        self.db.global.VCCharacterInfo[k]['Class'] = VCPlayerInfo['Class'];
+      end
       break
     end
   end
@@ -200,9 +214,12 @@ function VC:TradeSkillShowProcessorFunc(input)
         if (count ~= 0) then
           local startTime,duration,isEnabled = GetItemCooldown(15846);
           if(duration == 0) then
-            VCPlayerInfo['SaltCD'] = -1;
-            VC:Print("Salt Shaker OFF cooldown!");
-            return;
+            if( self:TimeLeft(SaltShakerTimer) == 0) then
+              VCPlayerInfo['SaltCD'] = -1;
+              VC:Print("Salt Shaker OFF cooldown!");
+              SaltShakerTimer = self:ScheduleTimer("TimerCooldown", 5);
+              return;
+            end
           else
             VCPlayerInfo['SaltCD'] = GetServerTime() + duration;
             VC:Print("Registered new Salt Shaker cooldown.");
@@ -223,9 +240,12 @@ function VC:TradeSkillShowProcessorFunc(input)
         local duration =  GetTradeSkillCooldown(i); --returns nil if not on cooldown
         --Check if off cooldown
         if(duration == nil) then
-          VCPlayerInfo['MoonCD'] = -1;
-          VC:Print("Mooncloth is OFF cooldown!");
-          return;
+          if( self:TimeLeft(TransmuteTimer) == 0) then
+            VCPlayerInfo['MoonCD'] = -1;
+            VC:Print("Mooncloth is OFF cooldown!");
+            TransmuteTimer = self:ScheduleTimer("TimerCooldown", 5);
+            return;
+          end
         else
           VCPlayerInfo['MoonCD'] = GetServerTime() + duration;
           VC:Print("Registered new Mooncloth cooldown.");
@@ -246,9 +266,12 @@ function VC:TradeSkillShowProcessorFunc(input)
         local duration =  GetTradeSkillCooldown(i);
         --Check if off cooldown
         if(duration == nil) then
-          VCPlayerInfo['TransCD'] = -1;
-          VC:Print("Transmute is OFF cooldown!");
-          return;
+          if( self:TimeLeft(SaltShakerTimer) == 0) then
+            VCPlayerInfo['TransCD'] = -1;
+            VC:Print("Transmute is OFF cooldown!");
+            SaltShakerTimer = self:ScheduleTimer("TimerCooldown", 5);
+            return;
+          end
         else
           VCPlayerInfo['TransCD'] = GetServerTime() + duration;
           VC:Print("Registered new Transmute cooldown.");
@@ -330,4 +353,17 @@ function VC:CheckExpiredCooldown(print)
       end
     end
   end
+end
+
+
+function VC:TimerPrint()
+  VC:Print("5 seconds passed");
+end
+
+function VC:TimerCooldown()
+    --Do Nothing!
+end
+
+function VC:VCTest()
+  VC:Print(self:TimeLeft(MoonClothTimer));
 end
