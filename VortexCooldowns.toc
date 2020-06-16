@@ -2,10 +2,26 @@
 ## Notes: Cooldown timers and warnings.
 ## Title: Vortex Cooldowns
 ## Author: Summersisles-Blaumeux
-## Version: 0.06-Alpha
+## Version: 0.10 - Dev - 0.03
 ## SavedVariables: VCdatabase
 
 embeds.xml
 ##Locale\Locales.xml
 VortexCooldowns.lua
 Options.lua
+
+
+
+
+
+
+##Testing - ALPHA
+##Register 1 Cooldown on 1 character
+##Confirm cooldown on another characters
+
+
+
+##Test - RELEASE
+##Register at least 1 Cooldown of each type
+##Confirm cooldown on another character in same Realm
+##Confirm cooldown on another character on a diff realm
