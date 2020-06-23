@@ -1,8 +1,8 @@
 ------------------------------
 --Vortex Cooldowns
 --Summersisles-Blaumeux (classic)
---
---
+--Classic Wow Profession Cooldowns
+--https://www.curseforge.com/wow/addons/vortex-cooldowns
 
 VC = LibStub("AceAddon-3.0"):NewAddon("VortexCooldowns", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0");
 
@@ -44,12 +44,18 @@ local defaults = {
   }
 }
 
+
+
 MoonClothTimer = nil;
 SaltShakerTimer = nil;
 TransmuteTimer = nil;
+local version = GetAddOnMetadata("VortexCooldowns", "Version") or 9999;
 
 function VC:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("VCdatabase", defaults)
+  --local AceConfig = LibStub("AceConfig-3.0")
+  LibStub("AceConfig-3.0"):RegisterOptionsTable("VortexCooldowns", VC.myOptionsTable,{"vcoptions"});
+  self.VCOptions = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("VortexCooldowns", "VortexCooldowns");
   VC:RegisterChatCommand("cooldowns", "CooldownsSlashProcessorFunc")
   --VC:RegisterChatCommand("VCSave", "VCSaveProcFunc")
   VC:RegisterChatCommand("VCTest", "VCTestProcFunc");
@@ -105,7 +111,7 @@ function VC:OnEnable()
     SaltShakerTimer =  self:ScheduleTimer("TimerCooldown", 5);
     TransmuteTimer =  self:ScheduleTimer("TimerCooldown", 5);
 
-    VC:Print("Vortex Cooldowns Enabled");
+    VC:Print("Vortex Cooldowns v:"..version.." Enabled");
 end
 
 function VC:VCSaveDB()
@@ -170,29 +176,6 @@ function VC:CooldownsSlashProcessorFunc(input)
         end
 
       end
-    -- else
-    --   if(charInfo['LW'] == true) then
-    --     if(charInfo['SaltCD'] == -1) then
-    --       VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],false,"Salt Shaker",nil);
-    --     else
-    --       VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],true,"Salt Shaker",charInfo['SaltCD']);
-    --     end
-    --   end
-    --   if(charInfo['Alch'] == true) then
-    --     if(charInfo['TransCD'] == -1) then
-    --       VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],false,"Transmute",nil);
-    --     else
-    --     VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],true,"Transmute",charInfo['TransCD']);
-    --     end
-    --   end
-    --   if(charInfo['Tailor'] == true) then
-    --     if(charInfo['MoonCD'] == -1) then
-    --       VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],false,"Mooncloth",nil);
-    --     else
-    --       VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],true,"Mooncloth",charInfo['MoonCD']);
-    --     end
-    --   end
-    -- end
   end
 end
 
@@ -299,15 +282,6 @@ function VC:UpdateTransmute()
 end
 
 
-        --local days = math.floor(duration / 86400);
-        --local hours = math.floor((duration - (days * 86400))/3600);
-        --local minutes = math.floor((duration - ((days * 86400) + (hours * 3600)))/60);
-        --VC:Print("Duration:"..duration);
-        --VC:Print("Days:"..days);
-        --VC:Print("Hours:"..hours);
-        --VC:Print("Minutes:"..minutes);
-
-
 function VC:PrintCooldownMessage(realm, name, class, onCD, type, time)
   if(onCD == true) then
     if(realm == VCPlayerInfo['Realm']) then
@@ -371,7 +345,7 @@ end
 
 function VC:VCTestProcFunc()
 
+  VC:PrintCooldownMessage("test","test","test",false,"Shaker",nil);
 
-
-  VC:Print("|c"..vortexColors['warlock'].."This text is warlock|r |c"..vortexColors['priest'].."This text is priest |c"..vortexColors['warrior'].."This text is warrior|r |c"..vortexColors['hunter'].."This text is hunter|r");
+  --VC:Print("|c"..vortexColors['warlock'].."This text is warlock|r |c"..vortexColors['priest'].."This text is priest |c"..vortexColors['warrior'].."This text is warrior|r |c"..vortexColors['hunter'].."This text is hunter|r");
 end
