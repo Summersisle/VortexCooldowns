@@ -5,6 +5,7 @@
 --https://www.curseforge.com/wow/addons/vortex-cooldowns
 
 VC = LibStub("AceAddon-3.0"):NewAddon("VortexCooldowns", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0");
+local AceGUI = LibStub("AceGUI-3.0")
 
 --Variable to keep track of the current logged in char
 VCPlayerInfo = {}
@@ -105,6 +106,17 @@ function VC:OnEnable()
       VC:Print("Registered new character "..VCPlayerInfo['Realm'].."-"..VCPlayerInfo['Name']);
       --VC:Print(VCPlayerInfo);
       table.insert(self.db.global.VCCharacterInfo,VCPlayerInfo);
+
+      --Display a gui informing the player to open their tradeskills. Add an option to hide this.
+      local frame = AceGUI:Create("Frame")
+      frame:SetTitle("Vortex Cooldowns New Character Registered!");
+      frame:SetWidth(300);
+      frame:SetHeight(150);
+      frame:SetLayout("Fill");
+      local l = AceGUI:Create("Label");
+      l:SetText("Vortex Cooldowns is seeing this character for the first time. Please open the trade skills for Alchemy, Leatherworking and / or Trailoring. To get started tracking your cooldowns.")
+      frame:AddChild(l);
+
     end
 
     MoonClothTimer = self:ScheduleTimer("TimerCooldown", 5);
@@ -345,7 +357,14 @@ end
 
 function VC:VCTestProcFunc()
 
-  VC:PrintCooldownMessage("test","test","test",false,"Shaker",nil);
+  local frame = AceGUI:Create("Frame")
+  frame:SetTitle("Vortex Cooldowns New Character Registered!");
+  frame:SetWidth(300);
+  frame:SetHeight(150);
+  frame:SetLayout("Fill");
+  local l = AceGUI:Create("Label");
+  l:SetText("Vortex Cooldowns is seeing this character for the first time. Please open the trade skills for Alchemy, Leatherworking and / or Trailoring. To get started tracking your cooldowns.")
+  frame:AddChild(l);
 
   --VC:Print("|c"..vortexColors['warlock'].."This text is warlock|r |c"..vortexColors['priest'].."This text is priest |c"..vortexColors['warrior'].."This text is warrior|r |c"..vortexColors['hunter'].."This text is hunter|r");
 end
