@@ -1,10 +1,11 @@
 ------------------------------
 --Vortex Cooldowns
 --Summersisles-Blaumeux (classic)
---
---
+--Classic Wow Profession Cooldowns
+--https://www.curseforge.com/wow/addons/vortex-cooldowns
 
 VC = LibStub("AceAddon-3.0"):NewAddon("VortexCooldowns", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0");
+local AceGUI = LibStub("AceGUI-3.0")
 
 --Variable to keep track of the current logged in char
 VCPlayerInfo = {}
@@ -18,6 +19,20 @@ VCPlayerInfo['SaltCD'] = -1
 VCPlayerInfo['MoonCD'] = -1
 VCPlayerInfo['TransCD'] = -1
 
+vortexColors = {};
+_, _, _, vortexColors['WARLOCK'] = GetClassColor("WARLOCK");
+_, _, _, vortexColors['WARRIOR'] = GetClassColor("WARRIOR");
+_, _, _, vortexColors['PRIEST'] = GetClassColor("PRIEST");
+_, _, _, vortexColors['MAGE'] = GetClassColor("MAGE");
+_, _, _, vortexColors['PALADIN'] = GetClassColor("PALADIN");
+_, _, _, vortexColors['HUNTER'] = GetClassColor("HUNTER");
+_, _, _, vortexColors['ROGUE'] = GetClassColor("ROGUE");
+_, _, _, vortexColors['SHAMAN'] = GetClassColor("SHAMAN");
+_, _, _, vortexColors['DRUID'] = GetClassColor("DRUID");
+vortexColors['Mooncloth'] = "fff4f4f4";
+vortexColors['Salt Shaker'] = "ffe28e1f";
+vortexColors['Transmute'] = "ff3cddf2";
+
 local defaults = {
   global = {
     optionA = true,
@@ -30,16 +45,23 @@ local defaults = {
   }
 }
 
+
+
 MoonClothTimer = nil;
 SaltShakerTimer = nil;
 TransmuteTimer = nil;
+local version = GetAddOnMetadata("VortexCooldowns", "Version") or 9999;
 
 function VC:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("VCdatabase", defaults)
+  --local AceConfig = LibStub("AceConfig-3.0")
+  LibStub("AceConfig-3.0"):RegisterOptionsTable("VortexCooldowns", VC.myOptionsTable,{"vcoptions"});
+  self.VCOptions = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("VortexCooldowns", "VortexCooldowns");
   VC:RegisterChatCommand("cooldowns", "CooldownsSlashProcessorFunc")
   --VC:RegisterChatCommand("VCSave", "VCSaveProcFunc")
-  VC:RegisterChatCommand("VCTest", "VCTest");
+  VC:RegisterChatCommand("VCTest", "VCTestProcFunc");
   VC:RegisterEvent("TRADE_SKILL_UPDATE","TradeSkillShowProcessorFunc")
+
   VC:Print("Vortex Cooldowns Initialized")
 end
 
@@ -84,13 +106,24 @@ function VC:OnEnable()
       VC:Print("Registered new character "..VCPlayerInfo['Realm'].."-"..VCPlayerInfo['Name']);
       --VC:Print(VCPlayerInfo);
       table.insert(self.db.global.VCCharacterInfo,VCPlayerInfo);
+
+      --Display a gui informing the player to open their tradeskills. Add an option to hide this.
+      local frame = AceGUI:Create("Frame")
+      frame:SetTitle("Vortex Cooldowns New Character Registered!");
+      frame:SetWidth(300);
+      frame:SetHeight(150);
+      frame:SetLayout("Fill");
+      local l = AceGUI:Create("Label");
+      l:SetText("Vortex Cooldowns is seeing this character for the first time. Please open the trade skills for Alchemy, Leatherworking and / or Trailoring. To get started tracking your cooldowns.")
+      frame:AddChild(l);
+
     end
 
     MoonClothTimer = self:ScheduleTimer("TimerCooldown", 5);
     SaltShakerTimer =  self:ScheduleTimer("TimerCooldown", 5);
     TransmuteTimer =  self:ScheduleTimer("TimerCooldown", 5);
 
-    VC:Print("Vortex Cooldowns Enabled");
+    VC:Print("Vortex Cooldowns v:"..version.." Enabled");
 end
 
 function VC:VCSaveDB()
@@ -129,72 +162,32 @@ function VC:CooldownsSlashProcessorFunc(input)
   VC:CheckExpiredCooldown(false);
 
   VC:Print("Current Tradeskills that have a cooldown!");
-  local fullname, realm = UnitFullName("player");
+  --local fullname, realm = UnitFullName("player");
   for k, charInfo in pairs(self.db.global.VCCharacterInfo) do
-    --VC:Print(charInfo['Realm']);
-    --VC:Print(charInfo['Name']);
-    --VC:Print(charInfo['LW']);
-    --VC:Print(charInfo['Alch']);
-    --VC:Print(charInfo['Tailor']);
-    if (realm ~= charInfo['Realm']) then
+    --if (realm ~= charInfo['Realm']) then
       if(charInfo['LW'] == true) then
         if(charInfo['SaltCD'] == -1) then
-          --VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Salt Shaker is OFF cooldown!");
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],false,"Salt Shaker",nil);
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,"Salt Shaker",nil);
         else
-          --VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Salt Shaker will be off cooldown at "..date("%x %X", charInfo['SaltCD']))
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],true,"Salt Shaker",charInfo['SaltCD']);
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,"Salt Shaker",charInfo['SaltCD']);
         end
       end
       if(charInfo['Alch'] == true) then
         if(charInfo['TransCD'] == -1) then
-          --VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Salt Shaker is OFF cooldown!");
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],false,"Transmute",nil);
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,"Transmute",nil);
         else
-          --VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Transmute will be off cooldown at "..date("%x %X", charInfo['TransCD']))
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],true,"Transmute",charInfo['TransCD']);
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,"Transmute",charInfo['TransCD']);
         end
 
       end
       if(charInfo['Tailor'] == true) then
         if(charInfo['MoonCD'] == -1) then
-          --VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Salt Shaker is OFF cooldown!");
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],false,"Mooncloth",nil);
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,"Mooncloth",nil);
         else
-          --VC:Print(charInfo['Realm'].."-"..charInfo['Name'].." Mooncloth will be off cooldown at "..date("%x %X", charInfo['MoonCD']))
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],true,"Mooncloth",charInfo['MoonCD']);
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,"Mooncloth",charInfo['MoonCD']);
         end
 
       end
-    else
-      if(charInfo['LW'] == true) then
-        if(charInfo['SaltCD'] == -1) then
-          --VC:Print(charInfo['Name'].." Salt Shaker is OFF cooldown!");
-          VC:PrintCooldownMessage(nil,charInfo['Name'],false,"Salt Shaker",nil);
-        else
-          --VC:Print(charInfo['Name'].." Salt Shaker will be off cooldown at "..date("%x %X", charInfo['SaltCD']))
-          VC:PrintCooldownMessage(nil,charInfo['Name'],true,"Salt Shaker",charInfo['SaltCD']);
-        end
-      end
-      if(charInfo['Alch'] == true) then
-        if(charInfo['TransCD'] == -1) then
-          --VC:Print(charInfo['Name'].." Transmute is OFF cooldown!");
-          VC:PrintCooldownMessage(nil,charInfo['Name'],false,"Transmute",nil);
-        else
-        --  VC:Print(charInfo['Name'].." Transmute will be off cooldown at "..date("%x %X", charInfo['TransCD']))
-        VC:PrintCooldownMessage(nil,charInfo['Name'],true,"Transmute",charInfo['TransCD']);
-        end
-      end
-      if(charInfo['Tailor'] == true) then
-        if(charInfo['MoonCD'] == -1) then
-          --VC:Print(charInfo['Name'].." Mooncloth is OFF cooldown!");
-          VC:PrintCooldownMessage(nil,charInfo['Name'],false,"Mooncloth",nil);
-        else
-          --VC:Print(charInfo['Name'].." Mooncloth will be off cooldown at "..date("%x %X", charInfo['MoonCD']))
-          VC:PrintCooldownMessage(nil,charInfo['Name'],true,"Mooncloth",charInfo['MoonCD']);
-        end
-      end
-    end
   end
 end
 
@@ -301,27 +294,18 @@ function VC:UpdateTransmute()
 end
 
 
-        --local days = math.floor(duration / 86400);
-        --local hours = math.floor((duration - (days * 86400))/3600);
-        --local minutes = math.floor((duration - ((days * 86400) + (hours * 3600)))/60);
-        --VC:Print("Duration:"..duration);
-        --VC:Print("Days:"..days);
-        --VC:Print("Hours:"..hours);
-        --VC:Print("Minutes:"..minutes);
-
-
-function VC:PrintCooldownMessage(realm, name, onCD, type, time)
+function VC:PrintCooldownMessage(realm, name, class, onCD, type, time)
   if(onCD == true) then
-    if(realm == nil) then
-      VC:Print(name.." "..type.." will be off cooldown at "..date("%x %X",time));
+    if(realm == VCPlayerInfo['Realm']) then
+      VC:Print("|c"..vortexColors[class]..name.."|r |c"..vortexColors[type]..type.."|r will be off cooldown at "..date("%x %X",time));
     else
-      VC:Print(realm.."-"..name.." "..type.." will be off cooldown at "..date("%x %X",time));
+      VC:Print("|cff3cf2be"..realm.."|r-|c"..vortexColors[class]..name.."|r |c"..vortexColors[type]..type.."|r will be off cooldown at "..date("%x %X",time));
     end
   else
-    if(realm == nil) then
-      VC:Print(name.." "..type.." is OFF cooldown");
+    if(realm == VCPlayerInfo['Realm']) then
+      VC:Print("|c"..vortexColors[class]..name.."|r |c"..vortexColors[type]..type.."|r is OFF cooldown");
     else
-      VC:Print(realm.."-"..name.." "..type.." is OFF cooldown");
+      VC:Print("|cff3cf2be"..realm.."|r-|c"..vortexColors[class]..name.."|r |c"..vortexColors[type]..type.."|r is OFF cooldown");
     end
   end
 end
@@ -368,4 +352,19 @@ end
 
 function VC:VCTest()
   VC:Print(self:TimeLeft(MoonClothTimer));
+end
+
+
+function VC:VCTestProcFunc()
+
+  local frame = AceGUI:Create("Frame")
+  frame:SetTitle("Vortex Cooldowns New Character Registered!");
+  frame:SetWidth(300);
+  frame:SetHeight(150);
+  frame:SetLayout("Fill");
+  local l = AceGUI:Create("Label");
+  l:SetText("Vortex Cooldowns is seeing this character for the first time. Please open the trade skills for Alchemy, Leatherworking and / or Trailoring. To get started tracking your cooldowns.")
+  frame:AddChild(l);
+
+  --VC:Print("|c"..vortexColors['warlock'].."This text is warlock|r |c"..vortexColors['priest'].."This text is priest |c"..vortexColors['warrior'].."This text is warrior|r |c"..vortexColors['hunter'].."This text is hunter|r");
 end
