@@ -29,11 +29,11 @@ _, _, _, vortexColors['HUNTER'] = GetClassColor("HUNTER");
 _, _, _, vortexColors['ROGUE'] = GetClassColor("ROGUE");
 _, _, _, vortexColors['SHAMAN'] = GetClassColor("SHAMAN");
 _, _, _, vortexColors['DRUID'] = GetClassColor("DRUID");
-vortexColors['Mooncloth'] = "fff4f4f4";
+vortexColors['Mooncloth'] = "ffF4F4F4";
 vortexColors['Salt Shaker'] = "ffe28e1f";
 vortexColors['Transmute'] = "ff3cddf2";
 
-local defaults = {
+VC.defaults = {
   global = {
     optionA = true,
     optionB = false,
@@ -42,7 +42,16 @@ local defaults = {
       subOptionsB = true,
     },
     VCCharacterInfo = {},
-  }
+    VCOptions = {
+      moonclothColor = "ffF4F4F4",
+      saltshakerColor = "ffe28e1f",
+      transmuteColor = "ff3cddf2",
+      masterOverrideMooncloth = true,
+      masterOverrideSaltShaker = true,
+      masterOverrideTransmute = true,
+      masterOverrideMorrowgrain = false,
+    },
+  },
 }
 
 
@@ -53,7 +62,7 @@ TransmuteTimer = nil;
 local version = GetAddOnMetadata("VortexCooldowns", "Version") or 9999;
 
 function VC:OnInitialize()
-  self.db = LibStub("AceDB-3.0"):New("VCdatabase", defaults)
+  self.db = LibStub("AceDB-3.0"):New("VCdatabase", VC.defaults)
   --local AceConfig = LibStub("AceConfig-3.0")
   LibStub("AceConfig-3.0"):RegisterOptionsTable("VortexCooldowns", VC.myOptionsTable,{"vcoptions"});
   self.VCOptions = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("VortexCooldowns", "VortexCooldowns");
@@ -113,6 +122,7 @@ function VC:OnEnable()
       frame:SetWidth(300);
       frame:SetHeight(150);
       frame:SetLayout("Fill");
+      frame:EnableResize(false);
       local l = AceGUI:Create("Label");
       l:SetText("Vortex Cooldowns is seeing this character for the first time. Please open the trade skills for Alchemy, Leatherworking and / or Trailoring. To get started tracking your cooldowns.")
       frame:AddChild(l);
@@ -122,6 +132,10 @@ function VC:OnEnable()
     MoonClothTimer = self:ScheduleTimer("TimerCooldown", 5);
     SaltShakerTimer =  self:ScheduleTimer("TimerCooldown", 5);
     TransmuteTimer =  self:ScheduleTimer("TimerCooldown", 5);
+
+    vortexColors['Mooncloth'] = self.db.global.VCOptions.moonclothColor;
+    vortexColors['Salt Shaker'] = self.db.global.VCOptions.saltshakerColor;
+    vortexColors['Transmute'] = self.db.global.VCOptions.transmuteColor;
 
     VC:Print("Vortex Cooldowns v:"..version.." Enabled");
 end
@@ -367,4 +381,27 @@ function VC:VCTestProcFunc()
   frame:AddChild(l);
 
   --VC:Print("|c"..vortexColors['warlock'].."This text is warlock|r |c"..vortexColors['priest'].."This text is priest |c"..vortexColors['warrior'].."This text is warrior|r |c"..vortexColors['hunter'].."This text is hunter|r");
+end
+
+--hex must start with ff
+function VC:HexToRGB(hex)
+  local red, green, blue;
+  red = tonumber(strsub(hex,3,4),16)/255;
+  green = tonumber(strsub(hex,5,6),16)/255;
+  blue = tonumber(strsub(hex,7,8),16)/255;
+
+  return red,green,blue;
+end
+
+function VC:RGBToHex(r,g,b)
+  local red, green, blue;
+  red = string.format("%x",r);
+  green = string.format("%x",g);
+  blue = string.format("%x",b);
+
+  if(strlen(red)~=2) then red=strconcat("0",red) end
+  if(strlen(green)~=2) then green=strconcat("0",green) end
+  if(strlen(blue)~=2) then blue=strconcat("0",blue)  end
+
+  return strconcat("ff",red,green,blue);
 end
