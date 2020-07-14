@@ -179,14 +179,14 @@ function VC:CooldownsSlashProcessorFunc(input)
   --local fullname, realm = UnitFullName("player");
   for k, charInfo in pairs(self.db.global.VCCharacterInfo) do
     --if (realm ~= charInfo['Realm']) then
-      if(charInfo['LW'] == true) then
+      if(charInfo['LW'] == true and self.db.global.VCOptions.masterOverrideSaltShaker == true) then
         if(charInfo['SaltCD'] == -1) then
           VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,"Salt Shaker",nil);
         else
           VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,"Salt Shaker",charInfo['SaltCD']);
         end
       end
-      if(charInfo['Alch'] == true) then
+      if(charInfo['Alch'] == true and self.db.global.VCOptions.masterOverrideTransmute == true) then
         if(charInfo['TransCD'] == -1) then
           VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,"Transmute",nil);
         else
@@ -194,7 +194,7 @@ function VC:CooldownsSlashProcessorFunc(input)
         end
 
       end
-      if(charInfo['Tailor'] == true) then
+      if(charInfo['Tailor'] == true and self.db.global.VCOptions.masterOverrideMooncloth == true) then
         if(charInfo['MoonCD'] == -1) then
           VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,"Mooncloth",nil);
         else
@@ -211,6 +211,11 @@ function VC:TradeSkillShowProcessorFunc(input)
      name, type, _, _, _, _ = GetTradeSkillInfo(i);
      if (name and type ~= "header") then
       if (name == "Cured Rugged Hide") then
+        if(self.db.global.VCOptions.masterOverrideSaltShaker == false) then
+          VCPlayerInfo['LW'] = false;
+          VCPlayerInfo['SaltCD'] = -1;
+          return;
+        end
         if(VCPlayerInfo['LW'] == false) then --Congrats on learning Leatherworking and getting Cured Rugged Hide
           VCPlayerInfo['LW'] = true
           return;
@@ -238,6 +243,11 @@ function VC:TradeSkillShowProcessorFunc(input)
           end
         end
       elseif (name == "Mooncloth") then
+        if(self.db.global.VCOptions.masterOverrideMooncloth == false) then
+          VCPlayerInfo['Tailor'] = false;
+          VCPlayerInfo['MoonCD'] = -1;
+          return;
+        end
         if(VCPlayerInfo['Tailor'] == false) then --Congrats on learning Tailoring and getting your Mooncloth transmute
           VCPlayerInfo['Tailor'] = true
           return;
@@ -265,6 +275,11 @@ function VC:TradeSkillShowProcessorFunc(input)
 
 
       elseif (string.find(name,"Transmute")) then
+        if(self.db.global.VCOptions.masterOverrideTransmute == false) then
+          VCPlayerInfo['Alch'] = false;
+          VCPlayerInfo['TransCD'] = -1;
+          return;
+        end
         if (VCPlayerInfo['Alch'] == false) then --Congrats on learning Alchemy and getting your first transmute
               VCPlayerInfo['Alch'] = true
               return;
@@ -328,27 +343,33 @@ end
 function VC:CheckExpiredCooldown(print)
   local currTime = GetServerTime();
   for k, charInfo in pairs(self.db.global.VCCharacterInfo) do
-    if(self.db.global.VCCharacterInfo[k]['LW'] == true) then
-      if (currTime > self.db.global.VCCharacterInfo[k]['SaltCD']) then
-        self.db.global.VCCharacterInfo[k]['SaltCD'] = -1;
-        if(print) then
-          VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, "Salt Shaker", nil);
+    if( self.db.global.VCOptions.masterOverrideSaltShaker ) then
+      if(self.db.global.VCCharacterInfo[k]['LW'] == true) then
+        if (currTime > self.db.global.VCCharacterInfo[k]['SaltCD']) then
+          self.db.global.VCCharacterInfo[k]['SaltCD'] = -1;
+          if(print) then
+            VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, "Salt Shaker", nil);
+          end
         end
       end
     end
-    if(self.db.global.VCCharacterInfo[k]['Tailor'] == true ) then
-      if (currTime > self.db.global.VCCharacterInfo[k]['MoonCD']) then
-        self.db.global.VCCharacterInfo[k]['MoonCD'] = -1;
-        if(print) then
-          VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, "Mooncloth", nil);
+    if(self.db.global.VCOptions.masterOverrideMooncloth) then
+      if(self.db.global.VCCharacterInfo[k]['Tailor'] == true ) then
+        if (currTime > self.db.global.VCCharacterInfo[k]['MoonCD']) then
+          self.db.global.VCCharacterInfo[k]['MoonCD'] = -1;
+          if(print) then
+            VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, "Mooncloth", nil);
+          end
         end
       end
     end
-    if(self.db.global.VCCharacterInfo[k]['Alch'] == true) then
-      if (currTime > self.db.global.VCCharacterInfo[k]['TransCD']) then
-        self.db.global.VCCharacterInfo[k]['TransCD'] = -1;
-        if(print) then
-          VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, "Transmute", nil);
+    if(self.db.global.VCOptions.masterOverrideTransmute) then
+      if(self.db.global.VCCharacterInfo[k]['Alch'] == true) then
+        if (currTime > self.db.global.VCCharacterInfo[k]['TransCD']) then
+          self.db.global.VCCharacterInfo[k]['TransCD'] = -1;
+          if(print) then
+            VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, "Transmute", nil);
+          end
         end
       end
     end
