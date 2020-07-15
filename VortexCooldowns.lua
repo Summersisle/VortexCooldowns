@@ -61,6 +61,8 @@ SaltShakerTimer = nil;
 TransmuteTimer = nil;
 local version = GetAddOnMetadata("VortexCooldowns", "Version") or 9999;
 
+local transmuteSpellID = {17566,25146,17565,17563,17564,7078,7080,7076,7082,12360,6037,3577}
+
 function VC:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("VCdatabase", VC.defaults)
   --local AceConfig = LibStub("AceConfig-3.0")
@@ -69,7 +71,8 @@ function VC:OnInitialize()
   VC:RegisterChatCommand("cooldowns", "CooldownsSlashProcessorFunc")
   --VC:RegisterChatCommand("VCSave", "VCSaveProcFunc")
   VC:RegisterChatCommand("VCTest", "VCTestProcFunc");
-  VC:RegisterEvent("TRADE_SKILL_UPDATE","TradeSkillShowProcessorFunc")
+  --VC:RegisterEvent("TRADE_SKILL_UPDATE","TradeSkillShowProcessorFunc")
+  VC:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED","UNIT_SPELLCAST_SUCCEEDEDProcessorFunc");
 
   VC:Print("Vortex Cooldowns Initialized")
 end
@@ -309,6 +312,38 @@ function VC:TradeSkillShowProcessorFunc(input)
   end
 end
 
+function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spellID)
+  --VC:Print(spellID);
+  if(spellID == 14342 and self.db.global.VCOptions.masterOverrideMooncloth == true) then    --mooncloth spell
+    VCPlayerInfo['Alch'] = true
+    local _,duration,_,_ =  GetSpellCooldown(spellID);
+    VCPlayerInfo['MoonCD'] = GetServerTime() + duration;
+    VC:Print("Registered new Mooncloth cooldown.");
+    VC:Print("Mooncloth will be off cooldown at "..date("%x %X", VCPlayerInfo['MoonCD']));
+    VC:VCSaveDB();
+  end
+
+  if(spellID == 19566 and self.db.global.VCOptions.masterOverrideSaltShaker == true) then    --Salt Shaker spell
+    VCPlayerInfo['LW'] = true
+    local _,duration,_,_ =  GetSpellCooldown(spellID);
+    VCPlayerInfo['SaltCD'] = GetServerTime() + duration;
+    VC:Print("Registered new Salt Shaker cooldown.");
+    VC:Print("Salt Shaker will be off cooldown at "..date("%x %X", VCPlayerInfo['SaltCD']));
+    VC:VCSaveDB();
+  end
+
+  for index,value in pairs(transmuteSpellID) do
+    if(spellID == value and self.db.global.VCOptions.masterOverrideTransmute == true) then
+      VCPlayerInfo['Alch'] = true
+      local _,duration,_,_ =  GetSpellCooldown(spellID);
+      VCPlayerInfo['TransCD'] = GetServerTime() + duration;
+      VC:Print("Registered new Transmute cooldown.");
+      VC:Print("Transmute will be off cooldown at "..date("%x %X", VCPlayerInfo['TransCD']));
+      VC:VCSaveDB();
+    end
+  end
+
+end
 
 function VC:UpdateSaltShaker()
 
@@ -392,14 +427,16 @@ end
 
 function VC:VCTestProcFunc()
 
-  local frame = AceGUI:Create("Frame")
-  frame:SetTitle("Vortex Cooldowns New Character Registered!");
-  frame:SetWidth(300);
-  frame:SetHeight(150);
-  frame:SetLayout("Fill");
-  local l = AceGUI:Create("Label");
-  l:SetText("Vortex Cooldowns is seeing this character for the first time. Please open the trade skills for Alchemy, Leatherworking and / or Trailoring. To get started tracking your cooldowns.")
-  frame:AddChild(l);
+  -- local frame = AceGUI:Create("Frame")
+  -- frame:SetTitle("Vortex Cooldowns New Character Registered!");
+  -- frame:SetWidth(300);
+  -- frame:SetHeight(150);
+  -- frame:SetLayout("Fill");
+  -- local l = AceGUI:Create("Label");
+  -- l:SetText("Vortex Cooldowns is seeing this character for the first time. Please open the trade skills for Alchemy, Leatherworking and / or Trailoring. To get started tracking your cooldowns.")
+  -- frame:AddChild(l);
+
+  VC:Print(UIErrorsFrame,"test");
 
   --VC:Print("|c"..vortexColors['warlock'].."This text is warlock|r |c"..vortexColors['priest'].."This text is priest |c"..vortexColors['warrior'].."This text is warrior|r |c"..vortexColors['hunter'].."This text is hunter|r");
 end
