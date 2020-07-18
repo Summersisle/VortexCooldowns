@@ -206,10 +206,8 @@ VC.myOptionsTable = {
           desc="Date Forms",
           values = {
             ["%X"] = "Computer Locale",
-            ["%I/%M"] = "hh/mm AM/PM",
-            ["%I:%M"] = "hh:mm AM/PM",
-            ["%H/%M"] = "HH/mm",
-            ["%I:%M"] = "HH:mm",
+            ["%I:%M %p"] = "hh:mm AM/PM",
+            ["%H:%M"] = "HH:mm",
           },
           get = "getTimeFormat",
           set = "setTimeFormat",

@@ -65,7 +65,7 @@ VC.defaults = {
   },
 }
 
-allCooldownSpellID={17566,25146,17565,17563,17564,7078,7080,7076,7082,12360,6037,3577,14342,19566};
+
 
 MoonClothTimer = nil;
 SaltShakerTimer = nil;
@@ -73,7 +73,10 @@ TransmuteTimer = nil;
 MorrorgrainTimer = nil;
 local version = GetAddOnMetadata("VortexCooldowns", "Version") or 9999;
 
-local transmuteSpellID = {17566,25146,17565,17563,17564,7078,7080,7076,7082,12360,6037,3577}
+local transmuteSpellID = {17566,25146,17565,17563,17564,7078,7080,7076,7082,12360,6037,3577};
+local moonclothSpellID = 18560;
+local saltshakerSpellID = 19566;
+allCooldownSpellID={17566,25146,17565,17563,17564,7078,7080,7076,7082,12360,6037,3577,moonclothSpellID,saltshakerSpellID};
 
 function VC:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("VCdatabase", VC.defaults)
@@ -126,14 +129,14 @@ function VC:OnEnable()
             VC:Print(value.." "..duration);
           end
           if(VCPlayerInfo['Tailor']) then
-            VC:UpdateMooncloth(14342)
+            VC:UpdateMooncloth(moonclothSpellID)
           end
 
           if(VCPlayerInfo['LW']) then
-            VC:UpdateSaltShaker(19566);
+            VC:UpdateSaltShaker(saltshakerSpellID);
           end
           if(VCPlayerInfo['Alch']) then
-            VC:UpdateTransmute(17566);
+            VC:UpdateTransmute(transmuteSpellID[1]);
           end
 
           VC:UpdateMorrowgrain();
@@ -161,6 +164,20 @@ function VC:OnEnable()
       local l = AceGUI:Create("Label");
       l:SetText("Vortex Cooldowns is seeing this character for the first time. Please cast a spell. To get started tracking your cooldowns.")
       frame:AddChild(l);
+
+      for index, value in pairs(allCooldownSpellID) do
+        local _,duration,_,_ =  GetSpellCooldown(value);
+        if(duration ~= 0) then
+          --VC:Print(value.." "..duration);
+          VC:UpdateMooncloth(value);
+
+          VC:UpdateSaltShaker(value);
+          if(VCPlayerInfo['TransCD'] == -1) then    --only do 1 transmute
+            VC:UpdateTransmute(value);
+          end
+        end
+      end
+
 
     end
 
@@ -388,7 +405,7 @@ end
 
 
 function VC:UpdateSaltShaker(spellID)
-    if(spellID == 19566 and self.db.global.VCOptions.masterOverrideSaltShaker == true) then    --Salt Shaker spell
+    if(spellID == saltshakerSpellID and self.db.global.VCOptions.masterOverrideSaltShaker == true) then    --Salt Shaker spell
       VCPlayerInfo['LW'] = true
       local _,duration,_,_ =  GetSpellCooldown(spellID);
       VCPlayerInfo['SaltCD'] = GetServerTime() + duration;
@@ -399,7 +416,7 @@ function VC:UpdateSaltShaker(spellID)
 end
 
 function VC:UpdateMooncloth(spellID)
-  if(spellID == 18560 and self.db.global.VCOptions.masterOverrideMooncloth == true) then    --mooncloth spell
+  if(spellID == moonclothSpellID and self.db.global.VCOptions.masterOverrideMooncloth == true) then    --mooncloth spell
     VCPlayerInfo['Tailor'] = true
     local _,duration,_,_ =  GetSpellCooldown(spellID);
     VCPlayerInfo['MoonCD'] = GetServerTime() + duration;
@@ -425,10 +442,11 @@ end
 
 function VC:PrintCooldownMessage(realm, name, class, onCD, type, time)
   if(onCD == true) then
+    local dateTimeFormat = self.db.global.VCOptions.dateFormat.." "..self.db.global.VCOptions.timeFormat;
     if(realm == VCPlayerInfo['Realm']) then
-      VC:Print("|c"..vortexColors[class]..name.."|r |c"..vortexColors[type]..type.."|r will be off cooldown at "..date("%x %X",time));
+      VC:Print("|c"..vortexColors[class]..name.."|r |c"..vortexColors[type]..type.."|r will be off cooldown at "..date(dateTimeFormat,time));
     else
-      VC:Print("|cff3cf2be"..realm.."|r-|c"..vortexColors[class]..name.."|r |c"..vortexColors[type]..type.."|r will be off cooldown at "..date("%x %X",time));
+      VC:Print("|cff3cf2be"..realm.."|r-|c"..vortexColors[class]..name.."|r |c"..vortexColors[type]..type.."|r will be off cooldown at "..date(dateTimeFormat,time));
     end
   else
     if(realm == VCPlayerInfo['Realm']) then
