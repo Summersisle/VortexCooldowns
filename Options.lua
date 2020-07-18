@@ -5,6 +5,8 @@
 --https://www.curseforge.com/wow/addons/vortex-cooldowns
 
 --order
+--Chat warning options 300-350
+--Special Warning options 350-400
 --Global Tracking options 400-500
 --color options 500-600
 
@@ -27,6 +29,82 @@ VC.myOptionsTable = {
       type = "group",
       order = 2,
       args={
+        chatWarnHeader={
+          type="header",
+          name="Chat Warning",
+          order=300,
+        },
+        chatWarnDescription = {
+          type="description",
+          name="Display a warning in the default chat frame when something isn't on cooldown",
+          order=301,
+        },
+        chatWarnMoonclothToggle={
+          type="toggle",
+          name="Mooncloth",
+          order=301,
+          get="getChatWarnMooncloth",
+          set="setChatWarnMooncloth",
+        },
+        chatWarnSaltShakerToggle={
+          type="toggle",
+          name="Salt Shaker",
+          order=301,
+          get="getChatWarnSaltShaker",
+          set="setChatWarnSaltShaker",
+        },
+        chatWarnTransmuteToggle={
+          type="toggle",
+          name="Transmute",
+          order=301,
+          get="getChatWarnTransmute",
+          set="setChatWarnTransmute",
+        },
+        chatWarnMorrowgrainToggle={
+          type="toggle",
+          name="Morrowgrain",
+          order=302,
+          get="getChatWarnMorrowgrain",
+          set="setChatWarnMorrowgrain",
+        },
+        specialWarnHeader={
+          type="header",
+          name="Special Warning",
+          order=350,
+        },
+        specialWarnDescription = {
+          type="description",
+          name="Display a warning on the screen when something isn't on cooldown",
+          order=351,
+        },
+        specialWarnMoonclothToggle={
+          type="toggle",
+          name="Mooncloth",
+          order=351,
+          get="getSpecialWarnMooncloth",
+          set="setSpecialWarnMooncloth",
+        },
+        specialWarnSaltShakerToggle={
+          type="toggle",
+          name="Salt Shaker",
+          order=351,
+          get="getSpecialWarnSaltShaker",
+          set="setSpecialWarnSaltShaker",
+        },
+        specialWarnTransmuteToggle={
+          type="toggle",
+          name="Transmute",
+          order=351,
+          get="getSpecialWarnTransmute",
+          set="setSpecialWarnTransmute",
+        },
+        specialWarnMorrowgrainToggle={
+          type="toggle",
+          name="Morrowgrain",
+          order=352,
+          get="getSpecialWarnMorrowgrain",
+          set="setSpecialWarnMorrowgrain",
+        },
         masterOverrideTrackerHeader={
           type="header",
           name="Master Override Tracker",
@@ -103,8 +181,39 @@ VC.myOptionsTable = {
           func = "resetColors",
           width="half",
           order= 510,
-        }
-
+        },
+        dateFormat = {
+          name="Date Format",
+          type="select",
+          desc="Date Forms",
+          values = {
+            ["%x"] = "Computer Locale",
+            ["%m/%d/%Y"] = "mm/dd/yyyy",
+            ["%m-%d-%Y"] = "mm-dd-yyyy",
+            ["%d/%m/%Y"] = "dd/mm/yyyy",
+            ["%d-%m-%Y"] = "dd-mm-yyyy",
+            ["%m/%d/%y"] = "mm/dd/yy",
+            ["%m-%d-%y"] = "mm-dd-yy",
+            ["%d/%m/%y"] = "dd/mm/yy",
+            ["%d-%m-%y"] = "dd-mm-yy",
+          },
+          get = "getDateFormat",
+    			set = "setDateFormat",
+        },
+        timeFormat = {
+          name="Date Format",
+          type="select",
+          desc="Date Forms",
+          values = {
+            ["%X"] = "Computer Locale",
+            ["%I/%M"] = "hh/mm AM/PM",
+            ["%I:%M"] = "hh:mm AM/PM",
+            ["%H/%M"] = "HH/mm",
+            ["%I:%M"] = "HH:mm",
+          },
+          get = "getTimeFormat",
+          set = "setTimeFormat",
+        },
       }
 
     },
@@ -194,4 +303,73 @@ function VC:getMasterOverrideMorrowgrain(info)
 end
 function VC:setMasterOverrideMorrowgrain (info,value)
   self.db.global.VCOptions.masterOverrideMorrowgrain = value;
+end
+
+
+function VC:getSpecialWarnMooncloth(info)
+  return self.db.global.VCOptions.specialWarnMooncloth;
+end
+function VC:setSpecialWarnMooncloth(info,value)
+  self.db.global.VCOptions.specialWarnMooncloth = value;
+end
+
+function VC:getSpecialWarnSaltShaker(info)
+  return self.db.global.VCOptions.specialWarnSaltShaker;
+end
+function VC:setSpecialWarnSaltShaker(info,value)
+  self.db.global.VCOptions.specialWarnSaltShaker = value;
+end
+
+function VC:getSpecialWarnTransmute(info)
+  return self.db.global.VCOptions.specialWarnTransmute;
+end
+function VC:setSpecialWarnTransmute(info,value)
+  self.db.global.VCOptions.specialWarnTransmute = value;
+end
+
+function VC:getSpecialWarnMorrowgrain(info)
+  return self.db.global.VCOptions.specialWarnMorrowgrain;
+end
+function VC:setSpecialWarnMorrowgrain(info,value)
+  self.db.global.VCOptions.specialWarnMorrowgrain = value;
+end
+
+function VC:getChatWarnMooncloth(info)
+  return self.db.global.VCOptions.chatMooncloth;
+end
+function VC:setChatWarnMooncloth(info,value)
+  self.db.global.VCOptions.chatMooncloth = value;
+end
+
+function VC:getChatWarnSaltShaker(info)
+  return self.db.global.VCOptions.chatSlatShaker;
+end
+function VC:setChatWarnSaltShaker(info,value)
+  self.db.global.VCOptions.chatSlatShaker = value;
+end
+
+function VC:getChatWarnTransmute(info)
+  return self.db.global.VCOptions.chatTransmute;
+end
+function VC:setChatWarnTransmute(info,value)
+  self.db.global.VCOptions.chatTransmute = value;
+end
+
+function VC:getChatWarnMorrowgrain(info)
+  return self.db.global.VCOptions.chatMorrowgrain;
+end
+function VC:setChatWarnMorrowgrain(info,value)
+  self.db.global.VCOptions.chatMorrowgrain = value;
+end
+function VC:getDateFormat(info)
+  return self.db.global.VCOptions.dateFormat;
+end
+function VC:setDateFormat(info,value)
+  self.db.global.VCOptions.dateFormat = value;
+end
+function VC:getTimeFormat(info)
+  return self.db.global.VCOptions.timeFormat;
+end
+function VC:setTimeFormat(info,value)
+  self.db.global.VCOptions.timeFormat = value;
 end
