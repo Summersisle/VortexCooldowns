@@ -50,15 +50,27 @@ VC.defaults = {
       masterOverrideSaltShaker = true,
       masterOverrideTransmute = true,
       masterOverrideMorrowgrain = false,
+      specialWarnMooncloth = false,
+      specialWarnSaltShaker = false,
+      specialWarnTransmute = false,
+      specialWarnMorrowgrain = true,
+      chatMooncloth = true,
+      chatSlatShaker = true,
+      chatTransmute = true,
+      chatMorrowgrain = false,
+      dateFormat = "%x",
+      timeFormat = "%X",
+      timeZone = "%x",
     },
   },
 }
 
-
+allCooldownSpellID={17566,25146,17565,17563,17564,7078,7080,7076,7082,12360,6037,3577,14342,19566};
 
 MoonClothTimer = nil;
 SaltShakerTimer = nil;
 TransmuteTimer = nil;
+MorrorgrainTimer = nil;
 local version = GetAddOnMetadata("VortexCooldowns", "Version") or 9999;
 
 local transmuteSpellID = {17566,25146,17565,17563,17564,7078,7080,7076,7082,12360,6037,3577}
@@ -108,6 +120,26 @@ function VC:OnEnable()
         VCPlayerInfo['MoonCD'] = charInfo['MoonCD']
         VCPlayerInfo['TransCD'] = charInfo['TransCD']
         newCharacter = false
+        if(VCPlayerInfo['LW'] or VCPlayerInfo['Tailor'] or VCPlayerInfo['Alch']) then   -- If the player is a Leatherworker, Tailor, or Alch then recheck all the cooldowns
+          for index,value in pairs(allCooldownSpellID) do
+            local _,duration,_,_ =  GetSpellCooldown(value);
+            VC:Print(value.." "..duration);
+          end
+          if(VCPlayerInfo['Tailor']) then
+            VC:UpdateMooncloth(14342)
+          end
+
+          if(VCPlayerInfo['LW']) then
+            VC:UpdateSaltShaker(19566);
+          end
+          if(VCPlayerInfo['Alch']) then
+            VC:UpdateTransmute(17566);
+          end
+
+          VC:UpdateMorrowgrain();
+
+        end
+
         break
       end
     end
@@ -127,7 +159,7 @@ function VC:OnEnable()
       frame:SetLayout("Fill");
       frame:EnableResize(false);
       local l = AceGUI:Create("Label");
-      l:SetText("Vortex Cooldowns is seeing this character for the first time. Please open the trade skills for Alchemy, Leatherworking and / or Trailoring. To get started tracking your cooldowns.")
+      l:SetText("Vortex Cooldowns is seeing this character for the first time. Please cast a spell. To get started tracking your cooldowns.")
       frame:AddChild(l);
 
     end
@@ -135,6 +167,7 @@ function VC:OnEnable()
     MoonClothTimer = self:ScheduleTimer("TimerCooldown", 5);
     SaltShakerTimer =  self:ScheduleTimer("TimerCooldown", 5);
     TransmuteTimer =  self:ScheduleTimer("TimerCooldown", 5);
+    MorrorgrainTimer = self:ScheduleTimer("TimerCooldown", 30);
 
     vortexColors['Mooncloth'] = self.db.global.VCOptions.moonclothColor;
     vortexColors['Salt Shaker'] = self.db.global.VCOptions.saltshakerColor;
@@ -176,7 +209,7 @@ function VC:CooldownsSlashProcessorFunc(input)
 
   VC:VCSaveDB() -- Save the current character into the DB
 
-  VC:CheckExpiredCooldown(false);
+  VC:CheckAllExpiredCooldown(false);
 
   VC:Print("Current Tradeskills that have a cooldown!");
   --local fullname, realm = UnitFullName("player");
@@ -314,24 +347,69 @@ end
 
 function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spellID)
   --VC:Print(spellID);
-  if(spellID == 14342 and self.db.global.VCOptions.masterOverrideMooncloth == true) then    --mooncloth spell
-    VCPlayerInfo['Alch'] = true
+
+  VC:UpdateMooncloth(spellID)
+
+  VC:UpdateSaltShaker(spellID);
+
+  VC:UpdateTransmute(spellID);
+
+  VC:UpdateMorrowgrain();
+
+  if (VCPlayerInfo['LW'] and VCPlayerInfo['SaltCD'] == -1) then
+    --print
+  end
+
+end
+
+function VC:UpdateMorrowgrain()
+  --13399 Cultivate Packet of Seeds spell
+  --11018 Un'Goro Soil Item
+  --11022 Packet of Tharlendris Seeds item
+  --11020 Evergreen Pouch item
+  if (self.db.global.VCOptions.masterOverrideMorrowgrain and self:TimeLeft(MorrorgrainTimer)==0) then
+    local _,duration,enable =  GetItemCooldown(11020);
+
+    soilCount = GetItemCount(11018,false);
+    packetCount = GetItemCount(11022,false);
+    pouchCount = GetItemCount(11020,false);
+
+    if(duration == 0 and soilCount >=2 and packetCount >=1 and pouchCount >= 1 and UnitAffectingCombat("player")== false) then
+      if(self.db.global.VCOptions.specialWarnMorrowgrain) then
+        VC:Print(UIErrorsFrame,"Evergreen Pouch off cooldown!");
+      end
+      if(self.db.global.VCOptions.chatMorrowgrain) then
+        VC:Print("Evergreen Pouch off cooldown!");
+      end
+    end
+    MorrorgrainTimer = self:ScheduleTimer("TimerCooldown", 30);
+  end
+end
+
+
+function VC:UpdateSaltShaker(spellID)
+    if(spellID == 19566 and self.db.global.VCOptions.masterOverrideSaltShaker == true) then    --Salt Shaker spell
+      VCPlayerInfo['LW'] = true
+      local _,duration,_,_ =  GetSpellCooldown(spellID);
+      VCPlayerInfo['SaltCD'] = GetServerTime() + duration;
+      VC:Print("Registered new Salt Shaker cooldown.");
+      VC:Print("Salt Shaker will be off cooldown at "..date("%x %X", VCPlayerInfo['SaltCD']));
+      VC:VCSaveDB();
+    end
+end
+
+function VC:UpdateMooncloth(spellID)
+  if(spellID == 18560 and self.db.global.VCOptions.masterOverrideMooncloth == true) then    --mooncloth spell
+    VCPlayerInfo['Tailor'] = true
     local _,duration,_,_ =  GetSpellCooldown(spellID);
     VCPlayerInfo['MoonCD'] = GetServerTime() + duration;
     VC:Print("Registered new Mooncloth cooldown.");
     VC:Print("Mooncloth will be off cooldown at "..date("%x %X", VCPlayerInfo['MoonCD']));
     VC:VCSaveDB();
   end
+end
 
-  if(spellID == 19566 and self.db.global.VCOptions.masterOverrideSaltShaker == true) then    --Salt Shaker spell
-    VCPlayerInfo['LW'] = true
-    local _,duration,_,_ =  GetSpellCooldown(spellID);
-    VCPlayerInfo['SaltCD'] = GetServerTime() + duration;
-    VC:Print("Registered new Salt Shaker cooldown.");
-    VC:Print("Salt Shaker will be off cooldown at "..date("%x %X", VCPlayerInfo['SaltCD']));
-    VC:VCSaveDB();
-  end
-
+function VC:UpdateTransmute(spellID)
   for index,value in pairs(transmuteSpellID) do
     if(spellID == value and self.db.global.VCOptions.masterOverrideTransmute == true) then
       VCPlayerInfo['Alch'] = true
@@ -342,19 +420,6 @@ function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spe
       VC:VCSaveDB();
     end
   end
-
-end
-
-function VC:UpdateSaltShaker()
-
-end
-
-function VC:UpdateMooncloth()
-
-end
-
-function VC:UpdateTransmute()
-
 end
 
 
@@ -375,14 +440,14 @@ function VC:PrintCooldownMessage(realm, name, class, onCD, type, time)
 end
 
 --Checks the DB for all cooldowns that are expired
-function VC:CheckExpiredCooldown(print)
+function VC:CheckAllExpiredCooldown(print)
   local currTime = GetServerTime();
   for k, charInfo in pairs(self.db.global.VCCharacterInfo) do
     if( self.db.global.VCOptions.masterOverrideSaltShaker ) then
       if(self.db.global.VCCharacterInfo[k]['LW'] == true) then
         if (currTime > self.db.global.VCCharacterInfo[k]['SaltCD']) then
           self.db.global.VCCharacterInfo[k]['SaltCD'] = -1;
-          if(print) then
+          if(print and self.db.global.VCOptions.chatSlatShaker) then
             VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, "Salt Shaker", nil);
           end
         end
@@ -392,7 +457,7 @@ function VC:CheckExpiredCooldown(print)
       if(self.db.global.VCCharacterInfo[k]['Tailor'] == true ) then
         if (currTime > self.db.global.VCCharacterInfo[k]['MoonCD']) then
           self.db.global.VCCharacterInfo[k]['MoonCD'] = -1;
-          if(print) then
+          if(print and self.db.global.VCOptions.chatMooncloth) then
             VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, "Mooncloth", nil);
           end
         end
@@ -402,7 +467,7 @@ function VC:CheckExpiredCooldown(print)
       if(self.db.global.VCCharacterInfo[k]['Alch'] == true) then
         if (currTime > self.db.global.VCCharacterInfo[k]['TransCD']) then
           self.db.global.VCCharacterInfo[k]['TransCD'] = -1;
-          if(print) then
+          if(print and self.db.global.VCOptions.chatTransmute) then
             VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, "Transmute", nil);
           end
         end
