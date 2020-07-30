@@ -121,6 +121,7 @@ VC.myOptionsTable = {
           order=405,
           get="getMasterOverrideMooncloth",
           set="setMasterOverrideMooncloth",
+          confirm=true,
         },
         masterOverrideTransmuteToggle={
           type="toggle",
@@ -128,6 +129,7 @@ VC.myOptionsTable = {
           order=405,
           get="getMasterOverrideTransmute",
           set="setMasterOverrideTransmute",
+          confirm=true,
         },
         masterOverrideSaltShakerToggle={
           type="toggle",
@@ -135,6 +137,7 @@ VC.myOptionsTable = {
           order=405,
           get="getMasterOverrideSaltShaker",
           set="setMasterOverrideSaltShaker",
+          confirm=true,
         },
         masterOverrideMorrowgrainToggle={
           type="toggle",
