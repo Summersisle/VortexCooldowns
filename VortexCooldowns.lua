@@ -73,10 +73,10 @@ TransmuteTimer = nil;
 MorrorgrainTimer = nil;
 local version = GetAddOnMetadata("VortexCooldowns", "Version") or 9999;
 
-local transmuteSpellID = {17562,17187,17566,25146,17565,17563,17564,7078,7080,7076,7082,12360,6037,3577};
+local transmuteSpellID = {17562,17187,17566,25146,17565,17563,17564,17559,17561,17560,11480,11479};
 local moonclothSpellID = 18560;
 local saltshakerSpellID = 19566;
-allCooldownSpellID={17562,17187,17566,25146,17565,17563,17564,7078,7080,7076,7082,12360,6037,3577,moonclothSpellID,saltshakerSpellID};
+allCooldownSpellID={17562,17187,17566,25146,17565,17563,17564,17559,17561,17560,11480,11479,moonclothSpellID,saltshakerSpellID};
 
 function VC:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("VCdatabase", VC.defaults)
