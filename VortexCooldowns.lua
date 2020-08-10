@@ -238,24 +238,24 @@ function VC:CooldownsSlashProcessorFunc(input)
     --if (realm ~= charInfo['Realm']) then
       if(charInfo['LW'] == true and self.db.global.VCOptions.masterOverrideSaltShaker == true) then
         if(charInfo['SaltCD'] == -1) then
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,L["Salt Shaker"],nil);
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,"Salt Shaker",nil);
         else
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,L["Salt Shaker"],charInfo['SaltCD']);
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,"Salt Shaker",charInfo['SaltCD']);
         end
       end
       if(charInfo['Alch'] == true and self.db.global.VCOptions.masterOverrideTransmute == true) then
         if(charInfo['TransCD'] == -1) then
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,L["Transmute"],nil);
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,"Transmute",nil);
         else
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,L["Transmute"],charInfo['TransCD']);
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,"Transmute",charInfo['TransCD']);
         end
 
       end
       if(charInfo['Tailor'] == true and self.db.global.VCOptions.masterOverrideMooncloth == true) then
         if(charInfo['MoonCD'] == -1) then
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,L["Mooncloth"],nil);
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,"Mooncloth",nil);
         else
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,L["Mooncloth"],charInfo['MoonCD']);
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,"Mooncloth",charInfo['MoonCD']);
         end
 
       end
@@ -383,7 +383,7 @@ function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spe
       if(GetServerTime() >= VCPlayerInfo['MoonCD'] and self.db.global.VCOptions.masterOverrideMooncloth == true and self:TimeLeft(moonclothWaitTimer)==0) then
         VCPlayerInfo['MoonCD'] = -1;
         if(self.db.global.VCOptions.chatMooncloth == true) then
-          VC:PrintCooldownMessage(VCPlayerInfo['Realm'], VCPlayerInfo['Name'], VCPlayerInfo['Class'],false, L["Mooncloth"], nil);
+          VC:PrintCooldownMessage(VCPlayerInfo['Realm'], VCPlayerInfo['Name'], VCPlayerInfo['Class'],false, "Mooncloth", nil);
         end
         if(self.db.global.VCOptions.specialWarnMooncloth) then
           VC:Print(UIErrorsFrame,L["Mooncloth off cooldown!"]);
@@ -395,7 +395,7 @@ function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spe
       if(GetServerTime() >= VCPlayerInfo['SaltCD'] and self.db.global.VCOptions.masterOverrideSaltShaker == true and self:TimeLeft(saltshakerWaitTimer)==0) then
         VCPlayerInfo['SaltCD'] = -1;
         if(self.db.global.VCOptions.masterOverrideSaltShaker == true) then
-          VC:PrintCooldownMessage(VCPlayerInfo['Realm'], VCPlayerInfo['Name'], VCPlayerInfo['Class'],false, L["Salt Shaker"], nil);
+          VC:PrintCooldownMessage(VCPlayerInfo['Realm'], VCPlayerInfo['Name'], VCPlayerInfo['Class'],false, "Salt Shaker", nil);
         end
         if(self.db.global.VCOptions.masterOverrideSaltShaker) then
           VC:Print(UIErrorsFrame,L["Salt Shaker off cooldown!"]);
@@ -408,7 +408,7 @@ function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spe
       if(GetServerTime() >= VCPlayerInfo['TransCD'] and self.db.global.VCOptions.masterOverrideTransmute == true and self:TimeLeft(transmuteWaitTimer)==0) then
         VCPlayerInfo['TransCD'] = -1;
         if(self.db.global.VCOptions.chatTransmute == true) then
-          VC:PrintCooldownMessage(VCPlayerInfo['Realm'], VCPlayerInfo['Name'], VCPlayerInfo['Class'],false, L["Transmute"], nil);
+          VC:PrintCooldownMessage(VCPlayerInfo['Realm'], VCPlayerInfo['Name'], VCPlayerInfo['Class'],false, "Transmute", nil);
         end
         if(self.db.global.VCOptions.specialWarnTransmute) then
           VC:Print(UIErrorsFrame,L["Transmute off cooldown!"]);
@@ -561,7 +561,7 @@ function VC:CheckAllExpiredCooldown(print)
         if (currTime > self.db.global.VCCharacterInfo[k]['SaltCD']) then
           self.db.global.VCCharacterInfo[k]['SaltCD'] = -1;
           if(print and self.db.global.VCOptions.chatSlatShaker) then
-            VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, L["Salt Shaker"], nil);
+            VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, "Salt Shaker", nil);
           end
         end
       end
@@ -571,7 +571,7 @@ function VC:CheckAllExpiredCooldown(print)
         if (currTime > self.db.global.VCCharacterInfo[k]['MoonCD']) then
           self.db.global.VCCharacterInfo[k]['MoonCD'] = -1;
           if(print and self.db.global.VCOptions.chatMooncloth) then
-            VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, L["Mooncloth"], nil);
+            VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, "Mooncloth", nil);
           end
         end
       end
@@ -581,7 +581,7 @@ function VC:CheckAllExpiredCooldown(print)
         if (currTime > self.db.global.VCCharacterInfo[k]['TransCD']) then
           self.db.global.VCCharacterInfo[k]['TransCD'] = -1;
           if(print and self.db.global.VCOptions.chatTransmute) then
-            VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, L["Transmute"], nil);
+            VC:PrintCooldownMessage(charInfo['realm'], charInfo['name'], false, "Transmute", nil);
           end
         end
       end
