@@ -168,19 +168,19 @@ function VC:OnEnable()
       l:SetText(L["Vortex Cooldowns is seeing this character for the first time. Please cast a spell. To get started tracking your cooldowns."])
       frame:AddChild(l);
 
-      for index, value in pairs(allCooldownSpellID) do
-        local _,duration,_,_ =  GetSpellCooldown(value);
-        if(duration ~= 0) then
-          --VC:Print(value.." "..duration);
-          --VC:UpdateMooncloth(value);
-
-          --VC:UpdateSaltShaker(value);
-
-          if(VCPlayerInfo['TransCD'] == -1) then    --only do 1 transmute
-            --VC:UpdateTransmute(value);
-          end
-        end
-      end
+      -- for index, value in pairs(allCooldownSpellID) do
+      --   local _,duration,_,_ =  GetSpellCooldown(value);
+      --   if(duration ~= 0) then
+      --     --VC:Print(value.." "..duration);
+      --     --VC:UpdateMooncloth(value);
+      --
+      --     --VC:UpdateSaltShaker(value);
+      --
+      --     if(VCPlayerInfo['TransCD'] == -1) then    --only do 1 transmute
+      --       --VC:UpdateTransmute(value);
+      --     end
+      --   end
+      -- end
 
 
     end
