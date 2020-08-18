@@ -164,6 +164,7 @@ function VC:OnEnable()
       frame:SetHeight(150);
       frame:SetLayout("Fill");
       frame:EnableResize(false);
+      frame:SetStatusText(addonName.." "..GetAddOnMetadata(addonName, "Version"));
       local l = AceGUI:Create("Label");
       l:SetText(L["Vortex Cooldowns is seeing this character for the first time. Please cast a spell. To get started tracking your cooldowns."])
       frame:AddChild(l);
@@ -634,7 +635,7 @@ end
 
 
 function VC:VCTestProcFunc()
-
+VC:getProfessionData(nil);
   -- local frame = AceGUI:Create("Frame")
   -- frame:SetTitle(L["Vortex Cooldowns New Character Registered!"]);
   -- frame:SetWidth(300);
@@ -644,8 +645,7 @@ function VC:VCTestProcFunc()
   -- l:SetText("Vortex Cooldowns is seeing this character for the first time. Please open the trade skills for Alchemy, Leatherworking and / or Trailoring. To get started tracking your cooldowns.")
   -- frame:AddChild(l);
 
-  VC:Print(UIErrorsFrame,"test");
-
+  --VC:Print(UIErrorsFrame,"test");
   --VC:Print("|c"..vortexColors['warlock'].."This text is warlock|r |c"..vortexColors['priest'].."This text is priest |c"..vortexColors['warrior'].."This text is warrior|r |c"..vortexColors['hunter'].."This text is hunter|r");
 end
 
@@ -670,4 +670,46 @@ function VC:RGBToHex(r,g,b)
   if(strlen(blue)~=2) then blue=strconcat("0",blue)  end
 
   return strconcat("ff",red,green,blue);
+end
+
+function VC:getProfessionData(info)
+  local pframe = AceGUI:Create("Frame")
+pframe:SetCallback("OnClose",function(widget) AceGUI:Release(widget) end)
+pframe:SetTitle("Vortex Cooldowns")
+pframe:SetStatusText(addonName.." "..GetAddOnMetadata(addonName, "Version"));
+pframe:SetLayout("list")
+  for k, charInfo in pairs(self.db.global.VCCharacterInfo) do
+    local playerContainter =  AceGUI:Create("SimpleGroup");
+    playerContainter:SetLayout("Flow");
+    playerContainter:SetFullWidth(true);
+    local  nameFram = AceGUI:Create("Label");
+    nameFram:SetText(charInfo['Name'].."                                                                         test");
+    playerContainter:AddChild(nameFram);
+
+    local  tailorFram = AceGUI:Create("Label");
+    if(charInfo['Tailor']) then
+      tailorFram:SetText("true");
+    else
+      tailorFram:SetText("false");
+    end
+playerContainter:AddChild(tailorFram);
+
+    local  lwFram = AceGUI:Create("Label");
+    if(charInfo['LW']) then
+      lwFram:SetText("true");
+    else
+      lwFram:SetText("false");
+    end
+playerContainter:AddChild(lwFram);
+
+    local  alchFram = AceGUI:Create("Label");
+    if(charInfo['Alch']) then
+      alchFram:SetText("true");
+    else
+      alchFram:SetText("false");
+    end
+playerContainter:AddChild(alchFram);
+
+    pframe:AddChild(playerContainter);
+  end
 end

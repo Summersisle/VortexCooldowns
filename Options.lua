@@ -226,8 +226,12 @@ VC.myOptionsTable = {
       name = L["Profession Data"],
       type = "group",
       args={
-        -- more options go here
-      }
+        professiondatabtn = {
+          name="test",
+          type="execute",
+          func="getProfessionData",
+        }
+      },
     },
     sharingoptions={
       name = L["Sharing"],
