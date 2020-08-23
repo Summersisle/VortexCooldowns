@@ -381,7 +381,7 @@ function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spe
     tsOnCD = tsOnCD or VC:UpdateTransmute(spellID);
   --  VC:Print(tsOnCD);
   end
-
+  local fib = false;
   if(tsOnCD == false and UnitAffectingCombat("player")== false) then
     if(VCPlayerInfo['Tailor']) then
       if(GetServerTime() >= VCPlayerInfo['MoonCD'] and self.db.global.VCOptions.masterOverrideMooncloth == true and self:TimeLeft(moonclothWaitTimer)==0) then
@@ -393,9 +393,8 @@ function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spe
           VC:Print(UIErrorsFrame,L["Mooncloth off cooldown!"]);
         end
         moonclothWaitTimer = self:ScheduleTimer("TimerCooldown",30*fib1);
-        fib3 = fib1 + fib2;
-        fib1 = fib2;
-        fib2 = fib3;
+        fib = true;
+
       end
     end
     if(VCPlayerInfo['LW']) then
@@ -408,9 +407,7 @@ function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spe
           VC:Print(UIErrorsFrame,L["Salt Shaker off cooldown!"]);
         end
         saltshakerWaitTimer = self:ScheduleTimer("TimerCooldown",30*fib1);
-        fib3 = fib1 + fib2;
-        fib1 = fib2;
-        fib2 = fib3;
+        fib =  true;
       end
     end
 
@@ -424,9 +421,7 @@ function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spe
           VC:Print(UIErrorsFrame,L["Transmute off cooldown!"]);
         end
         transmuteWaitTimer = self:ScheduleTimer("TimerCooldown",30*fib1);
-        fib3 = fib1 + fib2;
-        fib1 = fib2;
-        fib2 = fib3;
+        fib = true;
       end
     end
   end
@@ -443,8 +438,12 @@ function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spe
   --   end
   -- end
 
-
-
+  if(fib) then
+    fib3 = fib1 + fib2;
+    fib1 = fib2;
+    fib2 = fib3;
+    --VC:Print("1: "..fib1.." 2: "..fib2.." 3:"..fib3);
+  end
   VC:UpdateMorrowgrain();
 
 end
