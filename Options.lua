@@ -9,7 +9,9 @@
 --Special Warning options 350-400
 --Global Tracking options 400-500
 --color options 500-600
-
+local addonName, VC = ...
+local vortexColors = VC.vortexColors
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName);
 
 VC.myOptionsTable = {
   name="",
@@ -19,105 +21,107 @@ VC.myOptionsTable = {
   args = {
     titleText = {
 			type = "description",
-      image ="|TInterface\\Addons\\VortexCooldowns\\person-touching-black-two-bell-alarm-clock-1198264",
-			name = "        |cFFFF5100Vortex Cooldowns (v" .. GetAddOnMetadata("VortexCooldowns", "Version") .. ")",
+      image ="Interface\\Addons\\"..addonName.."\\person-touching-black-two-bell-alarm-clock-1198264.tga",
+      imageWidth = 64,
+      imageHeight = 64,
+			name = "|cFFFF5100Vortex Cooldowns (v" .. GetAddOnMetadata(addonName, "Version") .. ")",
 			fontSize = "large",
 			order = 1,
 		},
     vortexoptions={
-      name = "Vortex Options",
+      name = L["Vortex Options"],
       type = "group",
       order = 2,
       args={
         chatWarnHeader={
           type="header",
-          name="Chat Warning",
+          name=L["Chat Warning"],
           order=300,
         },
         chatWarnDescription = {
           type="description",
-          name="Display a warning in the default chat frame when something isn't on cooldown",
+          name=L["Display a warning in the default chat frame when something isn't on cooldown"],
           order=301,
         },
         chatWarnMoonclothToggle={
           type="toggle",
-          name="Mooncloth",
+          name=L["Mooncloth"],
           order=301,
           get="getChatWarnMooncloth",
           set="setChatWarnMooncloth",
         },
         chatWarnSaltShakerToggle={
           type="toggle",
-          name="Salt Shaker",
+          name=L["Salt Shaker"],
           order=301,
           get="getChatWarnSaltShaker",
           set="setChatWarnSaltShaker",
         },
         chatWarnTransmuteToggle={
           type="toggle",
-          name="Transmute",
+          name=L["Transmute"],
           order=301,
           get="getChatWarnTransmute",
           set="setChatWarnTransmute",
         },
         chatWarnMorrowgrainToggle={
           type="toggle",
-          name="Morrowgrain",
+          name=L["Morrowgrain"],
           order=302,
           get="getChatWarnMorrowgrain",
           set="setChatWarnMorrowgrain",
         },
         specialWarnHeader={
           type="header",
-          name="Special Warning",
+          name=L["Special Warning"],
           order=350,
         },
         specialWarnDescription = {
           type="description",
-          name="Display a warning on the screen when something isn't on cooldown",
+          name=L["Display a warning on the screen when something isn't on cooldown"],
           order=351,
         },
         specialWarnMoonclothToggle={
           type="toggle",
-          name="Mooncloth",
+          name=L["Mooncloth"],
           order=351,
           get="getSpecialWarnMooncloth",
           set="setSpecialWarnMooncloth",
         },
         specialWarnSaltShakerToggle={
           type="toggle",
-          name="Salt Shaker",
+          name=L["Salt Shaker"],
           order=351,
           get="getSpecialWarnSaltShaker",
           set="setSpecialWarnSaltShaker",
         },
         specialWarnTransmuteToggle={
           type="toggle",
-          name="Transmute",
+          name=L["Transmute"],
           order=351,
           get="getSpecialWarnTransmute",
           set="setSpecialWarnTransmute",
         },
         specialWarnMorrowgrainToggle={
           type="toggle",
-          name="Morrowgrain",
+          name=L["Morrowgrain"],
           order=352,
           get="getSpecialWarnMorrowgrain",
           set="setSpecialWarnMorrowgrain",
         },
         masterOverrideTrackerHeader={
           type="header",
-          name="Master Override Tracker",
+          name=L["Master Override Tracker"],
           order=400,
         },
         masterOverrideTrackerDesc = {
           type="description",
-          name="Unchecking these will not track any of these cooldowns for your account. See the Profession Data page to untrack individual characters.",
+          name=L["Unchecking these will not track any of these cooldowns for your account. See the Profession Data page to untrack individual characters."],
           order=401,
         },
         masterOverrideMoonclothToggle={
           type="toggle",
-          name="Mooncloth",
+          name=L["Mooncloth"],
           order=405,
           get="getMasterOverrideMooncloth",
           set="setMasterOverrideMooncloth",
@@ -125,7 +129,7 @@ VC.myOptionsTable = {
         },
         masterOverrideTransmuteToggle={
           type="toggle",
-          name="Transmute",
+          name=L["Transmute"],
           order=405,
           get="getMasterOverrideTransmute",
           set="setMasterOverrideTransmute",
@@ -133,7 +137,7 @@ VC.myOptionsTable = {
         },
         masterOverrideSaltShakerToggle={
           type="toggle",
-          name="Saltshaker",
+          name=L["Salt Shaker"],
           order=405,
           get="getMasterOverrideSaltShaker",
           set="setMasterOverrideSaltShaker",
@@ -141,7 +145,7 @@ VC.myOptionsTable = {
         },
         masterOverrideMorrowgrainToggle={
           type="toggle",
-          name="Morrowgrain",
+          name=L["Morrowgrain"],
           order=406,
           get="getMasterOverrideMorrowgrain",
           set="setMasterOverrideMorrowgrain",
@@ -149,13 +153,13 @@ VC.myOptionsTable = {
 
         colorHeader = {
           type="header",
-          name="Color Options",
+          name=L["Color Options"],
           order=500,
         },
         moonclothColor = {
           type="color",
-          desc="What is the Mooncloth color?",
-          name="Mooncloth Color",
+          desc=L["What is the Mooncloth color?"],
+          name=L["Mooncloth Color"],
           get = "getMoonclothColor",
           set = "setMoonclothColor",
           hasAlpha = false,
@@ -163,34 +167,34 @@ VC.myOptionsTable = {
         },
         transmuteColor = {
           type="color",
-          desc="What is the Transmute color?",
-          name="Transmute Color",
+          desc=L["What is the Transmute color?"],
+          name=L["Transmute Color"],
           get= "getTransmuteColor",
           set= "setTransmuteColor",
           order = 505,
         },
         saltshakerColor = {
           type="color",
-          desc="What is the Salt Shaker color?",
-          name="Salt Shaker Color",
+          desc=L["What is the Salt Shaker color?"],
+          name=L["Salt Shaker Color"],
           get= "getSaltShakerColor",
           set= "setSaltShakerColor",
           order = 505,
         },
         colorResetExec = {
           type = "execute",
-          desc = "Reset the colors to their default",
-          name = "reset",
+          desc = L["Reset the colors to their default"],
+          name = L["reset"],
           func = "resetColors",
           width="half",
           order= 510,
         },
         dateFormat = {
-          name="Date Format",
+          name=L["Date Format"],
           type="select",
-          desc="Date Forms",
+          desc=L["Date Forms"],
           values = {
-            ["%x"] = "Computer Locale",
+            ["%x"] = L["Computer Locale"],
             ["%m/%d/%Y"] = "mm/dd/yyyy",
             ["%m-%d-%Y"] = "mm-dd-yyyy",
             ["%d/%m/%Y"] = "dd/mm/yyyy",
@@ -204,11 +208,11 @@ VC.myOptionsTable = {
     			set = "setDateFormat",
         },
         timeFormat = {
-          name="Date Format",
+          name=L["Time Format"],
           type="select",
-          desc="Date Forms",
+          desc=L["Time Forms"],
           values = {
-            ["%X"] = "Computer Locale",
+            ["%X"] = L["Computer Locale"],
             ["%I:%M %p"] = "hh:mm AM/PM",
             ["%H:%M"] = "HH:mm",
           },
@@ -219,19 +223,19 @@ VC.myOptionsTable = {
 
     },
     professiondata={
-      name = "Profession Data",
+      name = L["Profession Data"],
       type = "group",
       args={
         -- more options go here
       }
     },
     sharingoptions={
-      name = "Sharing",
+      name = L["Sharing"],
       type = "group",
       args={
         masterOverrideTrackerDesc = {
           type="description",
-          name="Coming at some point in the near future. You can check twitter for updates. https://twitter.com/vortexcooldowns",
+          name=L["Coming at some point in the near future. You can check twitter for updates. https://twitter.com/vortexcooldowns"],
           order=401,
         },
       }
