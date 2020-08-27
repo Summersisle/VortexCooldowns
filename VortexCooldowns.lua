@@ -80,6 +80,8 @@ local moonclothSpellID   = 18560;
 local saltshakerSpellID  = 19566;
 local allCooldownSpellID = {17562,17187,17566,25146,17565,17563,17564,17559,17561,17560,11480,11479,moonclothSpellID,saltshakerSpellID};
 
+local fib1, fib2;
+
 function VC:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("VCdatabase", VC.defaults)
   --local AceConfig = LibStub("AceConfig-3.0")
@@ -168,19 +170,19 @@ function VC:OnEnable()
       l:SetText(L["Vortex Cooldowns is seeing this character for the first time. Please cast a spell. To get started tracking your cooldowns."])
       frame:AddChild(l);
 
-      for index, value in pairs(allCooldownSpellID) do
-        local _,duration,_,_ =  GetSpellCooldown(value);
-        if(duration ~= 0) then
-          --VC:Print(value.." "..duration);
-          --VC:UpdateMooncloth(value);
-
-          --VC:UpdateSaltShaker(value);
-
-          if(VCPlayerInfo['TransCD'] == -1) then    --only do 1 transmute
-            --VC:UpdateTransmute(value);
-          end
-        end
-      end
+      -- for index, value in pairs(allCooldownSpellID) do
+      --   local _,duration,_,_ =  GetSpellCooldown(value);
+      --   if(duration ~= 0) then
+      --     --VC:Print(value.." "..duration);
+      --     --VC:UpdateMooncloth(value);
+      --
+      --     --VC:UpdateSaltShaker(value);
+      --
+      --     if(VCPlayerInfo['TransCD'] == -1) then    --only do 1 transmute
+      --       --VC:UpdateTransmute(value);
+      --     end
+      --   end
+      -- end
 
 
     end
@@ -195,6 +197,8 @@ function VC:OnEnable()
     vortexColors['Transmute'] = self.db.global.VCOptions.transmuteColor;
 
     VC:Print(L["Vortex Cooldowns v:"]..version..L[" Enabled"]);
+    fib1 = 1;
+    fib2 = 1;
 end
 
 function VC:VCSaveDB()
@@ -377,7 +381,7 @@ function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spe
     tsOnCD = tsOnCD or VC:UpdateTransmute(spellID);
   --  VC:Print(tsOnCD);
   end
-
+  local fib = false;
   if(tsOnCD == false and UnitAffectingCombat("player")== false) then
     if(VCPlayerInfo['Tailor']) then
       if(GetServerTime() >= VCPlayerInfo['MoonCD'] and self.db.global.VCOptions.masterOverrideMooncloth == true and self:TimeLeft(moonclothWaitTimer)==0) then
@@ -388,7 +392,9 @@ function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spe
         if(self.db.global.VCOptions.specialWarnMooncloth) then
           VC:Print(UIErrorsFrame,L["Mooncloth off cooldown!"]);
         end
-        moonclothWaitTimer = self:ScheduleTimer("TimerCooldown",30);
+        moonclothWaitTimer = self:ScheduleTimer("TimerCooldown",30*fib1);
+        fib = true;
+
       end
     end
     if(VCPlayerInfo['LW']) then
@@ -400,7 +406,8 @@ function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spe
         if(self.db.global.VCOptions.masterOverrideSaltShaker) then
           VC:Print(UIErrorsFrame,L["Salt Shaker off cooldown!"]);
         end
-        saltshakerWaitTimer = self:ScheduleTimer("TimerCooldown",30);
+        saltshakerWaitTimer = self:ScheduleTimer("TimerCooldown",30*fib1);
+        fib =  true;
       end
     end
 
@@ -413,7 +420,8 @@ function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spe
         if(self.db.global.VCOptions.specialWarnTransmute) then
           VC:Print(UIErrorsFrame,L["Transmute off cooldown!"]);
         end
-        transmuteWaitTimer = self:ScheduleTimer("TimerCooldown",30);
+        transmuteWaitTimer = self:ScheduleTimer("TimerCooldown",30*fib1);
+        fib = true;
       end
     end
   end
@@ -430,8 +438,12 @@ function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spe
   --   end
   -- end
 
-
-
+  if(fib) then
+    fib3 = fib1 + fib2;
+    fib1 = fib2;
+    fib2 = fib3;
+    --VC:Print("1: "..fib1.." 2: "..fib2.." 3:"..fib3);
+  end
   VC:UpdateMorrowgrain();
 
 end
@@ -467,14 +479,9 @@ function VC:UpdateSaltShaker(spellID)
       SaltShakerTimer = self:ScheduleTimer("CooldownTimerProc", 2,spellID,"SaltCD");
       spellcastWaitTimer = self:ScheduleTimer("TimerCooldown",30);
       VCPlayerInfo['SaltCD'] = GetServerTime()+10;   --Set to the future so it doesn't double post?
+      fib1 = 1;
+      fib2 = 1;
       return true;
-      -- local startTime,duration,_,_ =  GetSpellCooldown(spellID);
-      -- local cdLeft = startTime + duration -GetTime();
-      -- --VC:Print(cdLeft);
-      -- VCPlayerInfo['SaltCD'] = cdLeft + GetServerTime();
-      -- VC:Print(L["Registered new Salt Shaker cooldown."]);
-      -- VC:Print(L["Salt Shaker will be off cooldown at "]..date("%x %X", VCPlayerInfo['SaltCD']));
-      -- VC:VCSaveDB();
     end
     return false;
 end
@@ -485,20 +492,9 @@ function VC:UpdateMooncloth(spellID)
     MoonClothTimer = self:ScheduleTimer("CooldownTimerProc", 2,spellID,"MoonCD");
     spellcastWaitTimer = self:ScheduleTimer("TimerCooldown",30);
     VCPlayerInfo['MoonCD'] = GetServerTime()+10;   --Set to the future so it doesn't double post?
+    fib1 = 1;
+    fib2 = 1;
     return true;
-    -- local startTime,duration,_,_ =  GetSpellCooldown(spellID);
-    -- local cdLeft = startTime + duration - GetTime();
-    -- VCPlayerInfo['MoonCD'] = cdLeft + GetServerTime();
-    -- VC:Print(L["Registered new Mooncloth cooldown."]);
-    -- VC:Print(L["Mooncloth will be off cooldown at "]..date("%x %X", VCPlayerInfo['MoonCD']));
-    -- VC:Print("Start Time "..startTime);
-    -- VC:Print("duration "..duration);
-    -- VC:Print("GetTime "..GetTime());
-    -- VC:Print("cdLeft "..cdLeft);
-    -- VC:Print("GetServerTime "..GetServerTime());
-    -- VC:Print("TransCD "..VCPlayerInfo['MoonCD']);
-    --
-    -- VC:VCSaveDB();
   end
   return false;
 end
@@ -512,22 +508,9 @@ function VC:UpdateTransmute(spellID)
         --print(spellID);
         spellcastWaitTimer = self:ScheduleTimer("TimerCooldown",30);
         VCPlayerInfo['TransCD'] = GetServerTime()+10;   --Set to the future so it doesn't double post?
+        fib1 = 1;
+        fib2 = 1;
         return true;
-        -- local startTime,duration,_,_ =  GetSpellCooldown(spellID);
-        -- local cdLeft = startTime + duration - GetTime();
-        -- VCPlayerInfo['TransCD'] = cdLeft + GetServerTime();
-        -- VC:Print(L["Registered new Transmute cooldown."]);
-        -- VC:Print(L["Transmute will be off cooldown at "]..date("%x %X", VCPlayerInfo['TransCD']));
-        --
-        -- VC:Print("Start Time "..startTime);
-        -- VC:Print("duration "..duration);
-        -- VC:Print("GetTime "..GetTime());
-        -- VC:Print("cdLeft "..cdLeft);
-        -- VC:Print("GetServerTime "..GetServerTime());
-        -- VC:Print("TransCD "..VCPlayerInfo['TransCD']);
-        --
-        --
-        -- VC:VCSaveDB();
       end
     end
   end
