@@ -226,7 +226,18 @@ VC.myOptionsTable = {
       name = L["Profession Data"],
       type = "group",
       args={
-        -- more options go here
+        resetCharBtn= {
+          name=L["Reset Character Data"],
+          type="execute",
+          confirm=true,
+          func = "resetCharData",
+        },
+        resetAllBtn= {
+          name=L["Reset All Data"],
+          type="execute",
+          confirm=true,
+          func = "resetAllData",
+        },
       }
     },
     sharingoptions={
@@ -377,4 +388,17 @@ function VC:getTimeFormat(info)
 end
 function VC:setTimeFormat(info,value)
   self.db.global.VCOptions.timeFormat = value;
+end
+
+function VC:resetAllData(info)
+  self.db.global.VCCharacterInfo = {};
+end
+
+function VC:resetCharData(info)
+  VC.VCPlayerInfo['LW'] = false;
+  VC.VCPlayerInfo['Tailor'] = false;
+  VC.VCPlayerInfo['Alch'] = false;
+  VC.VCPlayerInfo['SaltCD'] = -1;
+  VC.VCPlayerInfo['MoonCD'] = -1;
+  VC.VCPlayerInfo['TransCD'] = -1;
 end

@@ -62,5 +62,6 @@ L["Vortex Options"] = true
 L["What is the Mooncloth color?"] = true
 L["What is the Salt Shaker color?"] = true
 L["What is the Transmute color?"] = true
-
+L["Reset All Data"] =  true
+L["Reset Character Data"] =  true
 VC.L = L

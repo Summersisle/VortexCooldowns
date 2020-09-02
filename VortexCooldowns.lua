@@ -9,7 +9,8 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName);
 local AceGUI = LibStub("AceGUI-3.0")
 
 --Variable to keep track of the current logged in char
-local VCPlayerInfo = {}
+VC.VCPlayerInfo = {}
+local VCPlayerInfo =  VC.VCPlayerInfo;
 VCPlayerInfo['Realm'] = nil
 VCPlayerInfo['Name'] = nil
 VCPlayerInfo['Class'] = nil
