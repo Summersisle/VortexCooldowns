@@ -64,6 +64,7 @@ VC.defaults = {
       dateFormat = "%x",
       timeFormat = "%X",
       timeZone = "%x",
+      dateOrTimeFormat = "datetime",
     },
   },
 }
@@ -523,9 +524,27 @@ function VC:PrintCooldownMessage(realm, name, class, onCD, type, time)
   if(onCD == true) then
     local dateTimeFormat = self.db.global.VCOptions.dateFormat.." "..self.db.global.VCOptions.timeFormat;
     if(realm == VCPlayerInfo['Realm']) then
-      VC:Print("|c"..vortexColors[class]..name.."|r |c"..vortexColors[type]..type..L["|r will be off cooldown at "]..date(dateTimeFormat,time));
+      if(self.db.global.VCOptions.dateOrTimeFormat == "datetime") then
+        VC:Print("|c"..vortexColors[class]..name.."|r |c"..vortexColors[type]..type..L["|r will be off cooldown at "]..date(dateTimeFormat,time));
+      else
+        local day, hour, minute;
+        day = floor((time-GetServerTime())/86400)
+        hour = floor((time-GetServerTime() - (day * 86400)) / 3600);
+        minute = floor((time-GetServerTime() - (day * 86400) - (hour * 3600))/60)
+
+
+        VC:Print("|c"..vortexColors[class]..name.."|r |c"..vortexColors[type]..type..L["|r will be off cooldown in "]..day.." days "..hour.." hours "..minute.." minutes");
+      end
     else
-      VC:Print("|cff3cf2be"..realm.."|r-|c"..vortexColors[class]..name.."|r |c"..vortexColors[type]..type..L["|r will be off cooldown at "]..date(dateTimeFormat,time));
+      if(self.db.global.VCOptions.dateOrTimeFormat == "datetime") then
+        VC:Print("|cff3cf2be"..realm.."|r-|c"..vortexColors[class]..name.."|r |c"..vortexColors[type]..type..L["|r will be off cooldown at "]..date(dateTimeFormat,time));
+      else
+        local day, hour, minute;
+        day = floor((time-GetServerTime())/86400)
+        hour = floor((time-GetServerTime() - (day * 86400)) / 3600);
+        minute = floor((time-GetServerTime() - (day * 86400) - (hour * 3600))/60)
+        VC:Print("|cff3cf2be"..realm.."|r-|c"..vortexColors[class]..name.."|r |c"..vortexColors[type]..type..L["|r will be off cooldown in "]..day.." days "..hour.." hours "..minute.." minutes");
+      end
     end
   else
     if(realm == VCPlayerInfo['Realm']) then
