@@ -35,6 +35,7 @@ L["Vortex Cooldowns is seeing this character for the first time. Please cast a s
 L["Vortex Cooldowns New Character Registered!"] = true
 L["Vortex Cooldowns v:"] = true
 L["|r is OFF cooldown"] = true
+L["|r will be off cooldown in "] = true
 L["|r will be off cooldown at "] = true
 -- Options
 L["Chat Warning"] = true
@@ -62,5 +63,9 @@ L["Vortex Options"] = true
 L["What is the Mooncloth color?"] = true
 L["What is the Salt Shaker color?"] = true
 L["What is the Transmute color?"] = true
-
+L["Reset All Data"] =  true
+L["Reset Character Data"] =  true
+L["Display the date or remaining days, hours, and minutes. When showing cooldowns."] = true
+L["Month Day"] = true
+L["Days, Hours, Minutes"] = true
 VC.L = L

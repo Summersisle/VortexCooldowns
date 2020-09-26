@@ -189,10 +189,24 @@ VC.myOptionsTable = {
           width="half",
           order= 510,
         },
+        dateOrTimeFormat = {
+          name=L["Display the date or remaining days, hours, and minutes. When showing cooldowns."],
+          type="select",
+          style = "radio",
+          get = "getdateOrTimeFormat",
+          set = "setdateOrTimeFormat",
+          order = 250,
+          values = {
+            ["datetime"] = L["Month Day"],
+            ["dayshoursminutes"] = L["Days, Hours, Minutes"],
+          },
+        },
         dateFormat = {
           name=L["Date Format"],
           type="select",
           desc=L["Date Forms"],
+          disabled ="disableDateFormat",
+          order = 260,
           values = {
             ["%x"] = L["Computer Locale"],
             ["%m/%d/%Y"] = "mm/dd/yyyy",
@@ -211,6 +225,8 @@ VC.myOptionsTable = {
           name=L["Time Format"],
           type="select",
           desc=L["Time Forms"],
+          disabled = "disableDateFormat",
+          order = 260,
           values = {
             ["%X"] = L["Computer Locale"],
             ["%I:%M %p"] = "hh:mm AM/PM",
@@ -226,7 +242,18 @@ VC.myOptionsTable = {
       name = L["Profession Data"],
       type = "group",
       args={
-        -- more options go here
+        resetCharBtn= {
+          name=L["Reset Character Data"],
+          type="execute",
+          confirm=true,
+          func = "resetCharData",
+        },
+        resetAllBtn= {
+          name=L["Reset All Data"],
+          type="execute",
+          confirm=true,
+          func = "resetAllData",
+        },
       }
     },
     sharingoptions={
@@ -377,4 +404,34 @@ function VC:getTimeFormat(info)
 end
 function VC:setTimeFormat(info,value)
   self.db.global.VCOptions.timeFormat = value;
+end
+
+function VC:getdateOrTimeFormat(info)
+  return self.db.global.VCOptions.dateOrTimeFormat;
+end
+function VC:setdateOrTimeFormat(info, value)
+  self.db.global.VCOptions.dateOrTimeFormat = value;
+end
+
+function VC:disableDateFormat(info)
+  if(VC:getdateOrTimeFormat() == "datetime") then
+    return false;
+  end
+  return true;
+end
+
+function VC:resetAllData(info)
+  self.db.global.VCCharacterInfo = {};
+  VC:resetCharData(info);
+  table.insert(self.db.global.VCCharacterInfo,VCPlayerInfo);
+end
+
+function VC:resetCharData(info)
+  VC.VCPlayerInfo['LW'] = false;
+  VC.VCPlayerInfo['Tailor'] = false;
+  VC.VCPlayerInfo['Alch'] = false;
+  VC.VCPlayerInfo['SaltCD'] = -1;
+  VC.VCPlayerInfo['MoonCD'] = -1;
+  VC.VCPlayerInfo['TransCD'] = -1;
+  VC:VCSaveDB();
 end
