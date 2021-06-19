@@ -41,6 +41,11 @@ VC.myOptionsTable = {
         chatWarnDescription = {
           type="description",
           name=L["Display a warning in the default chat frame when something isn't on cooldown"],
+          order=300,
+        },
+        chatWarnClassicHeader={
+          type="header",
+          name=L["Chat Warning Classic"],
           order=301,
         },
         chatWarnMoonclothToggle={
@@ -70,6 +75,32 @@ VC.myOptionsTable = {
           order=302,
           get="getChatWarnMorrowgrain",
           set="setChatWarnMorrowgrain",
+        },
+        chatWarnBCCHeader={
+          type="header",
+          name=L["Chat Warning BCC"],
+          order=305,
+        },
+        chatWarnPrimalMoonclothToggle={
+          type="toggle",
+          name=L["PrimalMoonCloth"],
+          order=305,
+          get="getChatWarnPrimalMooncloth",
+          set="setChatWarnPrimalMooncloth",
+        },
+        chatWarnSpellclothToggle={
+          type="toggle",
+          name=L["Spellcloth"],
+          order=305,
+          get="getChatWarnSpellcloth",
+          set="setChatWarnSpellcloth",
+        },
+        chatWarnShadowclothToggle={
+          type="toggle",
+          name=L["Shadowcloth"],
+          order=305,
+          get="getChatWarnShadowcloth",
+          set="setChatWarnShadowcloth",
         },
         specialWarnHeader={
           type="header",
@@ -434,4 +465,23 @@ function VC:resetCharData(info)
   VC.VCPlayerInfo['MoonCD'] = -1;
   VC.VCPlayerInfo['TransCD'] = -1;
   VC:VCSaveDB();
+end
+
+function VC:getChatWarnPrimalMooncloth(info)
+  return self.db.global.VCOptions.chatPrimalMooncloth;
+end
+function VC:setChatWarnPrimalMooncloth(info, value)
+  self.db.global.VCOptions.chatPrimalMooncloth = value;
+end
+function VC:getChatWarnSpellcloth(info)
+  return self.db.global.VCOptions.chatPrimalSpellcloth;
+end
+function VC:setChatWarnSpellcloth(info, value)
+  self.db.global.VCOptions.chatPrimalSpellcloth = value;
+end
+function VC:getChatWarnShadowcloth(info)
+  return self.db.global.VCOptions.chatPrimalShadowcloth;
+end
+function VC:setChatWarnShadowcloth(info, value)
+  self.db.global.VCOptions.chatPrimalShadowcloth = value;
 end

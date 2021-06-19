@@ -20,6 +20,12 @@ VCPlayerInfo['Alch'] = false
 VCPlayerInfo['SaltCD'] = -1
 VCPlayerInfo['MoonCD'] = -1
 VCPlayerInfo['TransCD'] = -1
+VCPlayerInfo['PMoon'] = false
+VCPlayerInfo['PMoonCD'] = -1
+VCPlayerInfo['ShadowCloth'] = false
+VCPlayerInfo['ShadowClothCD'] = -1
+VCPlayerInfo['Spellcloth'] = false
+VCPlayerInfo['SpellclothCD'] = -1
 
 VC.vortexColors = {};
 local vortexColors,_ = VC.vortexColors;
@@ -35,6 +41,9 @@ _, _, _, vortexColors['DRUID'] = GetClassColor("DRUID");
 vortexColors['Mooncloth'] = "ffF4F4F4";
 vortexColors['Salt Shaker'] = "ffe28e1f";
 vortexColors['Transmute'] = "ff3cddf2";
+vortexColors['Primal Mooncloth'] = "ffF4F4F4";
+vortexColors['Shadowcloth'] = "ffF4F4F4";
+vortexColors['Spellcloth'] = "ffF4F4F4";
 
 VC.defaults = {
   global = {
@@ -49,9 +58,9 @@ VC.defaults = {
       moonclothColor = "ffF4F4F4",
       saltshakerColor = "ffe28e1f",
       transmuteColor = "ff3cddf2",
-      masterOverrideMooncloth = true,
+      masterOverrideMooncloth = false,
       masterOverrideSaltShaker = true,
-      masterOverrideTransmute = true,
+      masterOverrideTransmute = false,
       masterOverrideMorrowgrain = false,
       specialWarnMooncloth = false,
       specialWarnSaltShaker = false,
@@ -65,13 +74,25 @@ VC.defaults = {
       timeFormat = "%X",
       timeZone = "%x",
       dateOrTimeFormat = "datetime",
+      primalMoonclothColor = "ffF4F4F4",
+      masterOverridePrimalMooncloth = true,
+      specialWarnPrimalMooncloth = false,
+      chatPrimalMooncloth = true,
+      primalSpellclothColor = "ffF4F4F4",
+      masterOverrideSpellcloth = false,
+      specialWarnSpellcloth = false,
+      chatPrimalSpellcloth = true,
+      primalShadowclothColor = "ffF4F4F4",
+      masterOverrideShadowcloth = false,
+      specialWarnShadowcloth = false,
+      chatPrimalShadowcloth = true,
     },
   },
 }
 
 
 
-local MoonClothTimer,SaltShakerTimer,TransmuteTimer,MorrorgrainTimer;
+local MoonClothTimer,SaltShakerTimer,TransmuteTimer,MorrorgrainTimer,PrimalMoonclothTimer;
 
 local moonclothWaitTimer,saltshakerWaitTimer,transmuteWaitTimer,spellcastWaitTimer;
 
@@ -81,6 +102,10 @@ local transmuteSpellID   = {17562,17187,17566,25146,17565,17563,17564,17559,1756
 local moonclothSpellID   = 18560;
 local saltshakerSpellID  = 19566;
 local allCooldownSpellID = {17562,17187,17566,25146,17565,17563,17564,17559,17561,17560,11480,11479,moonclothSpellID,saltshakerSpellID};
+local primalmoonclothSpellID = 26751;
+local shadowclothSpellID = 36686;
+local spellclothSpellID = 31373;
+
 
 local fib1, fib2;
 
@@ -128,6 +153,12 @@ function VC:OnEnable()
         VCPlayerInfo['SaltCD'] = charInfo['SaltCD']
         VCPlayerInfo['MoonCD'] = charInfo['MoonCD']
         VCPlayerInfo['TransCD'] = charInfo['TransCD']
+        VCPlayerInfo['PMoon'] = charInfo['PMoon']
+        VCPlayerInfo['PMoonCD'] = charInfo['PMoonCD']
+        VCPlayerInfo['ShadowCloth'] = charInfo['ShadowCloth']
+        VCPlayerInfo['ShadowClothCD'] = charInfo['ShadowClothCD']
+        VCPlayerInfo['Spellcloth'] = charInfo['Spellcloth']
+        VCPlayerInfo['SpellclothCD'] = charInfo['SpellclothCD']
         newCharacter = false
         -- if(VCPlayerInfo['LW'] or VCPlayerInfo['Tailor'] or VCPlayerInfo['Alch']) then   -- If the player is a Leatherworker, Tailor, or Alch then recheck all the cooldowns
         --   for index,value in pairs(allCooldownSpellID) do
@@ -162,15 +193,15 @@ function VC:OnEnable()
       table.insert(self.db.global.VCCharacterInfo,VCPlayerInfo);
 
       --Display a gui informing the player to open their tradeskills. Add an option to hide this.
-      local frame = AceGUI:Create("Frame")
-      frame:SetTitle(L["Vortex Cooldowns New Character Registered!"]);
-      frame:SetWidth(300);
-      frame:SetHeight(150);
-      frame:SetLayout("Fill");
-      frame:EnableResize(false);
-      local l = AceGUI:Create("Label");
-      l:SetText(L["Vortex Cooldowns is seeing this character for the first time. Please cast a spell. To get started tracking your cooldowns."])
-      frame:AddChild(l);
+      --local frame = AceGUI:Create("Frame")
+      --frame:SetTitle(L["Vortex Cooldowns New Character Registered!"]);
+    --  frame:SetWidth(300);
+  --    frame:SetHeight(150);
+    --  frame:SetLayout("Fill");
+  --    frame:EnableResize(false);
+  --    local l = AceGUI:Create("Label");
+--      l:SetText(L["Vortex Cooldowns is seeing this character for the first time. Please cast a spell. To get started tracking your cooldowns."])
+  --    frame:AddChild(l);
 
       -- for index, value in pairs(allCooldownSpellID) do
       --   local _,duration,_,_ =  GetSpellCooldown(value);
@@ -193,10 +224,14 @@ function VC:OnEnable()
     SaltShakerTimer =  self:ScheduleTimer("TimerCooldown", 5);
     TransmuteTimer =  self:ScheduleTimer("TimerCooldown", 5);
     MorrorgrainTimer = self:ScheduleTimer("TimerCooldown", 30);
+    PrimalMoonclothTimer = self:ScheduleTimer("TimerCooldown",5);
 
     vortexColors['Mooncloth'] = self.db.global.VCOptions.moonclothColor;
     vortexColors['Salt Shaker'] = self.db.global.VCOptions.saltshakerColor;
     vortexColors['Transmute'] = self.db.global.VCOptions.transmuteColor;
+    vortexColors['PrimalMooncloth'] = self.db.global.VCOptions.primalmoonclothColor;
+    vortexColors['Shadowcloth'] = self.db.global.VCOptions.shadowclothColor;
+    vortexColors['Spellcloth'] = self.db.global.VCOptions.spellclothColor;
 
     VC:Print(L["Vortex Cooldowns v:"]..version..L[" Enabled"]);
     fib1 = 1;
@@ -214,6 +249,12 @@ function VC:VCSaveDB()
       self.db.global.VCCharacterInfo[k]['SaltCD'] = VCPlayerInfo['SaltCD'];
       self.db.global.VCCharacterInfo[k]['MoonCD'] = VCPlayerInfo['MoonCD'];
       self.db.global.VCCharacterInfo[k]['TransCD'] = VCPlayerInfo['TransCD'];
+      self.db.global.VCCharacterInfo[k]['PMoon'] = VCPlayerInfo['PMoon'];
+      self.db.global.VCCharacterInfo[k]['PMoonCD'] = VCPlayerInfo['PMoonCD'];
+      self.db.global.VCCharacterInfo[k]['ShadowCloth'] = VCPlayerInfo['ShadowCloth'];
+      self.db.global.VCCharacterInfo[k]['ShadowClothCD'] = VCPlayerInfo['ShadowClothCD'];
+      self.db.global.VCCharacterInfo[k]['Spellcloth'] = VCPlayerInfo['Spellcloth'];
+      self.db.global.VCCharacterInfo[k]['SpellclothCD'] = VCPlayerInfo['SpellclothCD'];
       if(VCPlayerInfo['Class'] == nil) then
         _, VCPlayerInfo['Class'] = UnitClass("player");
         self.db.global.VCCharacterInfo[k]['Class'] = VCPlayerInfo['Class'];
@@ -242,6 +283,8 @@ function VC:CooldownsSlashProcessorFunc(input)
   --local fullname, realm = UnitFullName("player");
   for k, charInfo in pairs(self.db.global.VCCharacterInfo) do
     --if (realm ~= charInfo['Realm']) then
+  --  print(k);
+  --  print(charInfo["Name"]);
       if(charInfo['LW'] == true and self.db.global.VCOptions.masterOverrideSaltShaker == true) then
         if(charInfo['SaltCD'] == -1) then
           VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,"Salt Shaker",nil);
@@ -249,23 +292,34 @@ function VC:CooldownsSlashProcessorFunc(input)
           VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,"Salt Shaker",charInfo['SaltCD']);
         end
       end
-      if(charInfo['Alch'] == true and self.db.global.VCOptions.masterOverrideTransmute == true) then
-        if(charInfo['TransCD'] == -1) then
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,"Transmute",nil);
-        else
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,"Transmute",charInfo['TransCD']);
+      if(charInfo['Alch'] == true) then
+        if (self.db.global.VCOptions.masterOverrideTransmute == true) then
+          if(charInfo['TransCD'] == -1) then
+            VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,"Transmute",nil);
+          else
+            VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,"Transmute",charInfo['TransCD']);
+          end
         end
-
       end
-      if(charInfo['Tailor'] == true and self.db.global.VCOptions.masterOverrideMooncloth == true) then
-        if(charInfo['MoonCD'] == -1) then
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,"Mooncloth",nil);
-        else
-          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,"Mooncloth",charInfo['MoonCD']);
+      if(charInfo['Tailor'] == true) then
+        if( self.db.global.VCOptions.masterOverrideMooncloth == true) then
+          if(charInfo['MoonCD'] == -1) then
+            VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,"Mooncloth",nil);
+          else
+            VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,"Mooncloth",charInfo['MoonCD']);
+          end
         end
-
+      end
+      if( charInfo['PMoon'] == true and self.db.global.VCOptions.masterOverridePrimalMooncloth == true) then
+        print(charInfo['PMoonCD']);
+        if(charInfo['PMoonCD'] == -1) then
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],false,"Primal Mooncloth",nil);
+        else
+          VC:PrintCooldownMessage(charInfo['Realm'],charInfo['Name'],charInfo['Class'],true,"Primal Mooncloth",charInfo['PMoonCD']);
+        end
       end
   end
+  --print("done");
 end
 
 function VC:TradeSkillShowProcessorFunc(input)
@@ -381,6 +435,7 @@ function VC:UNIT_SPELLCAST_SUCCEEDEDProcessorFunc(info,unitTarget, castGUID, spe
     tsOnCD = tsOnCD or VC:UpdateMooncloth(spellID);
     tsOnCD = tsOnCD or VC:UpdateSaltShaker(spellID);
     tsOnCD = tsOnCD or VC:UpdateTransmute(spellID);
+    tsOnCD = tsOnCD or VC:UpdatePrimalMooncloth(spellID);
   --  VC:Print(tsOnCD);
   end
   local fib = false;
@@ -501,6 +556,19 @@ function VC:UpdateMooncloth(spellID)
   return false;
 end
 
+function VC:UpdatePrimalMooncloth(spellID)
+    if(spellID == primalmoonclothSpellID and self.db.global.VCOptions.masterOverridePrimalMooncloth == true) then    --primal mooncloth spell
+    VCPlayerInfo['PMoon'] = true
+    PrimalMoonClothTimer = self:ScheduleTimer("CooldownTimerProc", 2,spellID,"PMoon");
+    spellcastWaitTimer = self:ScheduleTimer("TimerCooldown",30);
+    VCPlayerInfo['PMoonCD'] = GetServerTime()+10;   --Set to the future so it doesn't double post?
+    fib1 = 1;
+    fib2 = 1;
+    return true;
+  end
+  return false;
+end
+
 function VC:UpdateTransmute(spellID)
   if(self:TimeLeft(spellcastWaitTimer)==0) then
     for index,value in pairs(transmuteSpellID) do
@@ -521,11 +589,17 @@ end
 
 
 function VC:PrintCooldownMessage(realm, name, class, onCD, type, time)
+
+--  VC:Print(realm.." "..name.." "..class);
+--  if(onCD) then VC:Print("true"); else VC:Print("false"); end
+--  VC:Print(type);
+  --VC:Print(time);
   if(onCD == true) then
     local dateTimeFormat = self.db.global.VCOptions.dateFormat.." "..self.db.global.VCOptions.timeFormat;
     if(realm == VCPlayerInfo['Realm']) then
       if(self.db.global.VCOptions.dateOrTimeFormat == "datetime") then
         VC:Print("|c"..vortexColors[class]..name.."|r |c"..vortexColors[type]..type..L["|r will be off cooldown at "]..date(dateTimeFormat,time));
+        --VC:Print("|c"..vortexColors[class]..name.."|r "..type..L["|r will be off cooldown at "]..date(dateTimeFormat,time));
       else
         local day, hour, minute;
         day = floor((time-GetServerTime())/86400)
@@ -614,10 +688,10 @@ function VC:CooldownTimerProc(spellID,cdType)
   elseif  (cdType=="TransCD") then
     longType = L["Transmute"];
   end
-
+  local sName,_,_,_,_,_,_ = GetSpellInfo(spellID);
   --VC:Print("Test1");
-   VC:Print(L["Registered new "]..longType..L[" cooldown."]);
-   VC:Print(longType..L[" will be off cooldown at "]..date("%x %X", VCPlayerInfo[cdType]));
+   VC:Print(L["Registered new "]..sName..L[" cooldown."]);
+   VC:Print(sName..L[" will be off cooldown at "]..date("%x %X", VCPlayerInfo[cdType]));
 
 
 
